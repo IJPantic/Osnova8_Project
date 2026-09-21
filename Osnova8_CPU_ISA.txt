@@ -1,0 +1,117 @@
+This document explains Osnova8 Instruction Set Arhitecture and instruction execution cycle
+Created by Ivan Jonjic (IJPantic on github)
+
+UPDATED ON:
+22. November, 2025.
+24. November, 2025.
+25. November, 2025.
+1. December, 2025.
+2. December, 2025.
+3. December, 2025.
+9. December, 2025.
+30. December, 2025.
+25. January, 2026.
+14. February, 2026.
+3. May, 2026.
+21. september, 2026.
+
+OPC - OPCodes:
+    Opcode number (Hex)         Opcode                              Opcode argument type
+    0                           JMP (JuMP)                          Condition
+    1                           RC (Register C)                     Bus
+    2                           SF (Sector File)                    Bus
+    3                           PFL (Pointer File Low)              Bus
+    4                           PFH (Pointer File High)             Bus
+    5                           RESR (REServe Register)             Bus
+    6                           ADD (ADdress Device)                Bus
+    7                           DVRR (Direct Value Register Reset)  None
+    8                           DVRL (Direct Value Register Low)    Value (One hex digit)
+    9                           DVRH (Direct Value Register High)   Value (One hex digit)
+    A                           RA (Register A)                     Bus
+    B                           RB (Register B)                     Bus
+    C                           PS (Pointer Selector)               Bus
+    D                           INTSI (INTerrupt Set Internal)      None
+    E                           INTSX (INTerrupt Set eXternal)      None
+    F                           INTE (INTerrupt Enable)             None
+
+ARG - ARGument:
+    Argument number (Hex)       Bus argument                        Condition argument
+    0                           ALU	(Arithmetic Logic Unit)         NC (No Condition)
+    1                           RC (Register C)                     EQU (EQUl)
+    2                           SFPS (Sector File Pointer Selector) FLGXN (FLaG X Negated)
+    3                           PFL (Pointer File Low)              INTMN (INTerrupt Mode Negated)
+    4                           PFH (Pointer File High)             CARRY (CARRY)
+    5                           RESR (REServe Register)             NEG (NEGative)
+    6                           ADD (ADdress Device)                ODD (EVEN)
+    7                           DVR (Direct Value Register)         DONT (DON'T)
+    8                           X                                   NC (No Condition)
+    9                           X                                   EQU (EQUl)
+    A                           X                                   FLGXN (FLaG X Negated)
+    B                           X                                   INTMN (INTerrupt Mode Negated)
+    C                           X                                   CARRY (CARRY)
+    D                           X                                   NEG (NEGative)
+    E                           X                                   ODD (EVEN)
+    F                           X                                   DONT (DON'T)
+
+(Note that binary low in MSB in argument part of instruction increments pointer while "jmp" instruction is being executed
+
+Instruction execution cycle:
+    0. step:
+        ACT_PC - releases value from address selected by PC (Or PCI) onto main data bus
+    1. step:
+        ACT_PC - releases value from address selected by PC (Or PCI) onto main data bus
+        Active ACT_IR - inputs IR (Instruction Register)
+    2. step:
+        ACT_PC - releases value from address selected by PC (Or PCI) onto main data bus
+        No active act's
+    3. step:
+        Active ACT_ARG - releases values selected by argument part of instruction onto main data bus
+    4. step:
+        Active ACT_ARG - releases values selected by argument part of instruction onto main data bus
+        Active ACT_OPC - executes current instruction in IR 
+    5. step:
+        Active ACT_ARG - releases values selected by argument part of instruction onto main data bus
+    6. step:
+        ACT_PC - releases value from address selected by PC (Or PCI) onto main data bus
+    7. step:
+        ACT_PC - releases value from address selected by PC (Or PCI) onto main data bus
+        Active ACT_INC - increments PC or PCI pointer by 1 (Note that exact pointer whhich will be incremented depends on CPU INT mode)
+
+Conditions:
+    NC: Condition will always be true. It does not depend on any state
+    EQU: Condition will be true only if values in RA and RB are equal
+    FLGXN: Condition will be true if pin "FLG" is low at the exact moment of jumping
+    INTMN: Condition will be true only if CPU is not in interrupt state (Note that program for checking INT state is then also in interrupt mode)
+    CARRY: Condition will be true for any values of RA and RB of which addition result is greater than 255
+    NEG: Condition will be true only if result of currently set ALU operation outputs a value in which last bit (128's place) is high
+    ODD: Condition will be true only if result of currently set ALU operation outputs a value in which first bit (1's place) is high
+    DONT: Condition will always be false. It does not depend on any state
+
+Opcodes actions:
+    JMP: it will copy pointer specified by PS's last 2 bits into pointer specified by PS's first 2 bits
+    SF: 4-bit register file used for specifing what sector of memory will address pointer be active in (Note that when it is written to, it is accessed by 8-bit CPU's bus via last 4 bits)
+    PS: 4-bit register (uses high part of bits from the main CPU bus as input specifing what pointer will be used by either for releasing value on bus or for address selecting and what pointer will be written to (Note that first 2 bits of PS are for reading from PF and SCT, while other 2 bits are for reading from PF and SCT)
+    PFL: register file (first 8 bits of 16 bit address) that includes pointers (0-3) that are used for addressing
+    PFH: register file (last 8 bits of 16 bit address) that includes pointers (0-3) that are used for addressing
+    RESR: register that temporarily holds data of another register to make additional space in CPU (Note that it should only be used by task which is running in interrupt mode for it's use in process of "CPU snapshot")
+    ADD: it will write to a device or devices on CPU address bus
+    DVRR: resets value of DIR to 0
+    DVRL: uses argument to specify low part value (first 4 bits) of the DIR
+    DVRH: uses argument to specify high part value (last 4 bits) of the DIR
+    RA: register A
+    RB: register B
+    RC: register C
+    INTSI: sets interrupt signal of CPU on which it executes
+    INTSO: sets interrupt signal of device that is out of CPU
+    INTE: restarts interrupt latch so that a new interrupt can activate it again (Note that by resetting interrupt signal, CPU stops executing instructions from PCI pointer)
+
+Arguments actions:
+    ALU: releases value of alu operation choosen by DIR on a main CPU data bus (Note that for choosing operations look at operation table of a 74181 ALU IC, where bits that control operation go as; bit 0: S0, bit 1: s1, bit 2: s2, bit 3: s3, bit 4: CIN, bit 5: M, bit 6 & 7: x)
+    SFPS: releases value of SF and PS together as 8 bit word on a main CPU data bus (Note that first 4 bits are from SF and other 4 bits are from PS)
+    RC: releases value of RC on a main CPU data bus
+    PFL: releases value of a pointer (first 8 bits of 16-bit address) specified by PS register, with part for reading, on a main CPU data bus
+    PFH: releases value of a pointer (last 8 bits of 16-bit address) specified by PS register, with part for reading, on a main CPU data bus
+    RESR: releases value of RESR on a main CPU data bus
+    ADD: releases value of a address device, addressed by a CPU's main address bus, on a main CPU data bus
+    DVR: releases value od DIR on a main CPU data bus
+
