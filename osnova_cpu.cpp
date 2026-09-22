@@ -26,11 +26,13 @@ TODO ADD opc, ovo nije kompatabilno sa IO za addr addw addb itd.
 //GLOBAL
 
 //Data types
-using byte = uint8_t; //CPU's word
-using pnt = uint16_t; //Pointer, 20-bit size
+using byte = uint8_t; //CPU's word, 8-bit
+using pnt = int; //Pointer, 20-bit
 
-//Variables
-byte FF = 255; //"FF" as 0xFF, value that will be often used
+//Universal variables that will be often used
+byte FF = 255; //"FF" as 0xFF, max value of a byte
+pnt adrAREA = 65535; //Address area mask of ADD address space (0x0FFFF)
+pnt sctAREA = 1048575-65535; //Sector area mask of ADD address space (0XF0000)
 
 //Functions
 int trim(int value, int start, int end);
@@ -99,7 +101,7 @@ class CPU
 
     //Pointers and pointer file
     pnt PC = 0; //Program Counter
-    pnt AP = 0; //Program Counter
+    pnt AP = 0; //Address Pointer
     pnt PCI = 0; //Program Counter Interrupt
     pnt API = 0; //Address Pointer Interrupt
 
@@ -137,7 +139,7 @@ class CPU
     //ALU
     int op; //(S0, S1, S2, S3) pins (Selection (Of operation)) 
     bool mode; //M pin (Mode, 1 is for logic operations, 0 is for arithmetic operations)
-    int cin; //Cn pin (Carry in (Pin is inverted))
+    int cin; //Cn pin (Carry in (Pin is inverted in ALU))
 
     int stage = 0; //CPU Cycle stage, affected by clock ticks (Clock is ticked by calling "updateCPU" function)
     int i = 0; //Don't touch ^^'
@@ -165,6 +167,8 @@ class CPU
     //Calculates ALU's operation result, ALU is 8-bit version of 74181 IC (equivalent of two 74181 cascaded)
     int calcALU(int A, int B, int op, bool mode, int cin)
     {
+        cin = !cin; //Inverting Cin pin of ALU
+
         if(mode) //Logic operations
         {
             switch(op)
@@ -190,22 +194,22 @@ class CPU
         {
             switch(op)
             {
-                case 0: return A -cin; break;
-                case 1: return (A || B) -cin; break;
-                case 2: return (A || (!B)) -cin; break;
-                case 3: return 255 -cin; break;
-                case 4: return A+(A && (!B)) -cin; break;
-                case 5: return (A || B)+(A && (!B)) -cin; break;
-                case 6: return A-B-1 -cin; break;
-                case 7: return (A && (!B))-1 -cin; break;
-                case 8: return A+(A && B) -cin; break;
-                case 9: return A+B -cin; break;
-                case 10: return (A || (!B))+(A && B) -cin; break;
-                case 11: return (A && B)-1 -cin; break;
-                case 12: return A+A -cin; break;
-                case 13: return (A || B)+A -cin; break;
-                case 14: return (A || (!B))+A -cin; break;
-                case 15: return A-1 -cin; break;
+                case 0: return A +cin; break;
+                case 1: return (A || B) +cin; break;
+                case 2: return (A || (!B)) +cin; break;
+                case 3: return 255 +cin; break;
+                case 4: return A+(A && (!B)) +cin; break;
+                case 5: return (A || B)+(A && (!B)) +cin; break;
+                case 6: return A-B-1 +cin; break;
+                case 7: return (A && (!B))-1 +cin; break;
+                case 8: return A+(A && B) +cin; break;
+                case 9: return A+B +cin; break;
+                case 10: return (A || (!B))+(A && B) +cin; break;
+                case 11: return (A && B)-1 +cin; break;
+                case 12: return A+A +cin; break;
+                case 13: return (A || B)+A +cin; break;
+                case 14: return (A || (!B))+A +cin; break;
+                case 15: return A-1 +cin; break;
             }
         }
     }
@@ -261,7 +265,7 @@ class CPU
                 //Flags check
                 EQU = RA == RB; //Are registers A and B equal?
                 INTMN = IF; //Is CPU in interrupt mode?
-                if(RA+RB > FF) CARRY = 0; //Is there carry?
+                CARRY = RA+RB > FF; //Is there a carry?
                 NEG = ALU >= 128; //Is MSB one?
                 ODD = ALU%2 == 1; //Is LSB one?
             break;
@@ -322,6 +326,7 @@ class CPU
 
             case 7: //Stage 7
                 *Pointers[i]++; //Incrementing PC (Or PCI, depending on interrupt flag state)
+                if(*Pointers[i] > adrAREA) *Pointers[i] = 0; //Spill check (Counting can only occur in address area of ADD, first 16 bits)
                 *ADDB = *Pointers[i]; //Setting address of the next instruction
 
                 stage = 0; //Resets cycle
