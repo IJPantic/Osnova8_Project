@@ -16,7 +16,6 @@ UPDATED ON:
 /*
 TODO napravi da je ovo library (makni main)
 TODO napravi lib sa osnovnim stvarima (data types, trim)
-TODO ADD opc, ovo nije kompatabilno sa IO za addr addw addb itd.
 */
 
 #include <cstdint>
@@ -44,10 +43,6 @@ class CPU;
 
 int main()
 {
-    /*updateCPU(
-
-    );*/
-
     return 0;
 }
 
@@ -80,7 +75,7 @@ class CPU
     bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
     bool *Addw; //Address Write signal (Inverted)
     bool *Addr; //Address Read signal (Inverted)
-    pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)=
+    pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
 
     private:
 
@@ -127,9 +122,9 @@ class CPU
     byte PRA; //Pointer Read Address (PS's lower part)
     byte PWA; //Pointer Write Address (PS's higher part)
 
-    byte *ADD; //ADdress Device
-
     byte ALU; //Arithmetic Logic Unit
+
+    byte *ADD = Bus; //ADdress Device
 
     //Instruction Register and derived values
     byte IR;
@@ -152,7 +147,7 @@ class CPU
         &PFL, //3
         &PFH, //4
         &RESR, //5
-        ADD, //6
+        ADD, //6, It is just a mirror value of the "*Bus" pointer
         &DVR, //7
         &FF, //8
         &FF, //9
@@ -233,7 +228,6 @@ class CPU
 
             case 1: //Stage 1
                 IR = *Bus; //Fetching instruction into IR
-
                 Opc = trim(IR, 4, 8); //Updating opcode value
                 Arg = trim(IR, 0, 4); //Updating argument value
             break;
@@ -246,21 +240,26 @@ class CPU
             case 3: //Stage 3
                 *Addr = 1; //Ending fetch stage
 
-                PRA = trim(PS, 0, 2); //Setting address of a current pointer selected by PS
+                //Setting address of a current pointer selected by PS
+                PRA = trim(PS, 0, 2);
                 PWA = trim(PS, 2, 4);
                 *ADDB = *Pointers[PRA];
 
                 PFL = trim(*Pointers[PRA], 0, 8); //Updating pointer file low source
                 PFH = trim(*Pointers[PRA], 8, 16); //Updating pointer file high source
-                *ADD = *ADDB; //Updating address device source
                 SFPS += (trim(*Pointers[PRA], 16, 20) <<8 ) + trim(PS, 0, 4); //Updating sector file, pointer selector source
 
-                op = trim(DVR, 0, 4); //Updating ALU source
+                //Updating ALU source
+                op = trim(DVR, 0, 4);
                 mode = trim(DVR, 4, 5);
                 cin = trim(DVR, 5, 6);
                 ALU = calcALU(RA, RB, op, mode, cin);
 
-                *Bus = *Src[Arg]; //Decoding argument part of instruction
+                //Decoding argument part of instruction
+                if(Arg == 6) //Index of ADD data source
+                    Addr = 0; //Gives signal to address device to output it's value to CPU'a data bus
+                else
+                    *Bus = *Src[Arg]; //Releases data sources from within CPU
 
                 //Flags check
                 EQU = RA == RB; //Are registers A and B equal?
@@ -286,7 +285,7 @@ class CPU
 
                     case 5: RESR = *Bus; break; //REServed Register (SRC -> RESR)
 
-                    case 6: *ADD = *Bus; break; //ADdress Device (SRC -> selected address of ADD)
+                    case 6: Addw = 0; break; //Address device write (SRC -> selected address of ADD)
 
                     case 7: DVR = 0; break; //Direct Value Register Reset (DVR = 0), sets value to zero
 
