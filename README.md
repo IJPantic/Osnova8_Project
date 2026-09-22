@@ -1,4 +1,5 @@
 Osnova project contents:
+
 1.C++ files:
 A)Utilities library:
 -LIB_osnova_utils.cpp  
