@@ -1,3 +1,5 @@
+(Dont't read document here, open it in text editor instead)
+
 Osnova project contents:
     C++ files:
         Utilities library:
