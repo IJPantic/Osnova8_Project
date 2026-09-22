@@ -6,13 +6,13 @@ UPDATED ON:
 22. september, 2026.
 */
 
-#ifdef LIB_osnova_cpu.h
-#define LIB_osnova_cpu.h
+#ifdef LIB_osnova_cpu
+#define LIB_osnova_cpu
 
 #include <cstdint>
 #include <cstdio>
 #include <math.h>
-#include "osnova_utils.h"
+#include "LIB_osnova_utils.h"
 
 //classes
 class CPU;

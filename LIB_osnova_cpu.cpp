@@ -16,9 +16,9 @@ UPDATED ON:
 #include <cstdint>
 #include <cstdio>
 #include <math.h>
-#include "osnova_utils.h"
+#include "LIB_osnova_utils.h"
 
-#include "osnova_cpu.h" //Header file of this library
+#include "LIB_osnova_cpu.h" //Header file of this library
 
 //classes
 class CPU;

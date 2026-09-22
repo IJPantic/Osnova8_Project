@@ -6,8 +6,8 @@ UPDATED ON:
 22. september, 2026.
 */
 
-#ifndef LIB_osnova_utils.h
-#define LIB_osnova_utils.h
+#ifndef LIB_osnova_utils
+#define LIB_osnova_utils
 
 //Data types
 using byte = uint8_t; //CPU's word, 8-bit

@@ -6,7 +6,7 @@ UPDATED ON:
 22. september, 2026.
 */
 
-#include "osnova_utils.h" //Header file of this library
+#include "LIB_osnova_utils.h" //Header file of this library
 
 //Data types
 using byte = uint8_t; //CPU's word, 8-bit
