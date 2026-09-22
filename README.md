@@ -5,7 +5,7 @@ Osnova project contents:
         Utilities library:
             LIB_osnova_utils.cpp
             LIB_osnova_utils.h
-        Cpu library:
+        CPU library:
             LIB_osnova_cpu.cpp
             LIB_osnova_cpu.h
     Logisim-evolution files:
