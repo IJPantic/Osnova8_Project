@@ -10,11 +10,13 @@ UPDATED ON:
 19. september, 2026.
 20. september, 2026.
 21. september, 2026.
+22. september, 2026.
 */
 
 /*
 TODO napravi da je ovo library (makni main)
 TODO napravi lib sa osnovnim stvarima (data types, trim)
+TODO ADD opc, ovo nije kompatabilno sa IO za addr addw addb itd.
 */
 
 #include <cstdint>
@@ -28,7 +30,7 @@ using byte = uint8_t; //CPU's word
 using pnt = uint16_t; //Pointer, 20-bit size
 
 //Variables
-byte FF = 255;
+byte FF = 255; //"FF" as 0xFF, value that will be often used
 
 //Functions
 int trim(int value, int start, int end);
@@ -80,7 +82,7 @@ class CPU
 
     private:
 
-    //Flags
+    //Flags (Conditions)
     bool EQU; //RA equals RB (Branch on RA == RB)
     bool FLGXN; //Pin Flag X Negated (Branch on 0)
     bool INTMN; //CPU's INTterrupt Mode Negated (Branch on IF == 1)
@@ -127,10 +129,10 @@ class CPU
 
     byte ALU; //Arithmetic Logic Unit
 
-    //Instruction Register
+    //Instruction Register and derived values
     byte IR;
-    byte Opc;
-    byte Arg;
+    byte Opc; //Opcode, higher 4-bit part of IR
+    byte Arg; //Argument, lower 4-bit part of IR
 
     //ALU
     int op; //(S0, S1, S2, S3) pins (Selection (Of operation)) 
@@ -259,8 +261,7 @@ class CPU
                 //Flags check
                 EQU = RA == RB; //Are registers A and B equal?
                 INTMN = IF; //Is CPU in interrupt mode?
-                if(RA+RB > 255); //Is there carry?
-                CARRY = 0; //TODO ???
+                if(RA+RB > FF) CARRY = 0; //Is there carry?
                 NEG = ALU >= 128; //Is MSB one?
                 ODD = ALU%2 == 1; //Is LSB one?
             break;
@@ -281,7 +282,7 @@ class CPU
 
                     case 5: RESR = *Bus; break; //REServed Register (SRC -> RESR)
 
-                    case 6: *ADD = *Bus; break; //ADdress Device (SRC -> selected address of ADD) TODO ovo nije kompatabilno sa IO za addr addw addb itd.
+                    case 6: *ADD = *Bus; break; //ADdress Device (SRC -> selected address of ADD)
 
                     case 7: DVR = 0; break; //Direct Value Register Reset (DVR = 0), sets value to zero
 
@@ -322,6 +323,8 @@ class CPU
             case 7: //Stage 7
                 *Pointers[i]++; //Incrementing PC (Or PCI, depending on interrupt flag state)
                 *ADDB = *Pointers[i]; //Setting address of the next instruction
+
+                stage = 0; //Resets cycle
             break;
         }
     }
