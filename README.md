@@ -1,4 +1,4 @@
-(Dont't read document here, open it in text editor instead)
+(Dont't read document in preview mode, use code view mode instead)
 
 Osnova project contents:
     C++ files:
