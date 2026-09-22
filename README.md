@@ -15,9 +15,11 @@ B)CPU library:
 2.Logisim-evolution files:
 
 A)TTL 74XX library:
+
 -TTL_74XX.circ
 
 B)CPU library:
+
 -Osnova8_CPU.circ
 
 3.Image files:
