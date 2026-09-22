@@ -206,7 +206,7 @@ class CPU
 
                 PFL = trim(*Pointers[PRA], 0, 8); //Updating pointer file low source
                 PFH = trim(*Pointers[PRA], 8, 16); //Updating pointer file high source
-                SFPS += (trim(*Pointers[PRA], 16, 20) <<8 ) + trim(PS, 0, 4); //Updating sector file, pointer selector source
+                SFPS = (trim(*Pointers[PRA], 16, 20) <<8 ) + trim(PS, 0, 4); //Updating sector file, pointer selector source
 
                 //Updating ALU source
                 op = trim(DVR, 0, 4);
