@@ -8,6 +8,7 @@ UPDATED ON:
 
 #include "LIB_osnova_utils.h"
 #include "LIB_osnova_cpu.h"
+#include "LIB_4kb_ram.h"
 
 //GLOBALS
 
