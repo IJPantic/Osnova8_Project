@@ -1,4 +1,5 @@
 This file contains Osnova project contents
+
 Created by Ivan Jonjic (IJPantic on github)
 
 UPDATED ON:
