@@ -1,41 +1,38 @@
-Osnova project contents:
+This file contains Osnova project contents
+Created by Ivan Jonjic (IJPantic on github)
 
-1.C++ files:
+UPDATED ON:
+22. september, 2026.
+23. september, 2026.
 
-A)Utilities library:
+Contents:
+    C++ files:
+        Utilities library:
+            LIB_osnova_utils.cpp
+            LIB_osnova_utils.h
 
-LIB_osnova_utils.cpp  
-LIB_osnova_utils.h
+        CPU library:
+            LIB_osnova_cpu.cpp
+            LIB_osnova_cpu.h
 
-B)CPU library:
+        RAM library:
+            LIB_4kb_ram.cpp
+            LIB_4kb_ram.h
 
-LIB_osnova_cpu.cpp
-LIB_osnova_cpu.h
+        CPU test:
+            cpu_test.cpp (Incomplete)
 
-C)RAM library:
+    Logisim-evolution files:
+        TTL 74XX library:
+            TTL_74XX.circ
 
-LIB_4kb_ram.cpp
-LIB_4kb_ram.h
+        CPU library:
+            Osnova8_CPU.circ
 
-D)CPU test:
+    Image files:
+        CPU_arhitecture_drawing.jpg
+        Logisim_preview.png
 
-cpu_test.cpp (Incomplete)
+    Document files:
+        Osnova8_CPU_ISA.txt
 
-2.Logisim-evolution files:
-
-A)TTL 74XX library:
-
-TTL_74XX.circ
-
-B)CPU library:
-
-Osnova8_CPU.circ
-
-3.Image files:
-
-CPU_arhitecture_drawing.jpg
-Logisim_preview.png
-
-4.Document files:
-
-Osnova8_CPU_ISA.txt
