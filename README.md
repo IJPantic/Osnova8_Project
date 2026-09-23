@@ -2,8 +2,9 @@ This file contains Osnova project contents
 Created by Ivan Jonjic (IJPantic on github)
 
 UPDATED ON:
-22. september, 2026.
-23. september, 2026.
+        
+        22. september, 2026.
+        23. september, 2026.
 
 Contents table:
 
