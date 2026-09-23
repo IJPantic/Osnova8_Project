@@ -7,6 +7,10 @@ UPDATED ON:
 23. september, 2026.
 */
 
+#include <cstdint>
+#include <cstdio>
+#include <math.h>
+
 #ifndef LIB_osnova_utils
 #define LIB_osnova_utils
 

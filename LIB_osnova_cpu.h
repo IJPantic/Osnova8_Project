@@ -7,19 +7,14 @@ UPDATED ON:
 23. september, 2026.
 */
 
+#include "LIB_osnova_utils.h"
+
 #ifndef LIB_osnova_cpu
 #define LIB_osnova_cpu
-
-#include <cstdint>
-#include <cstdio>
-#include <math.h>
-#include "LIB_osnova_utils.h"
 
 //classes
 class CPU
 {
-    private:
-
     //Flags (Conditions)
     bool EQU; //RA equals RB (Branch on RA == RB)
     bool FLGXN; //Pin Flag X Negated (Branch on 0)
@@ -84,17 +79,18 @@ class CPU
     int calcALU(int A, int B, int op, bool mode, int cin);
 
     public:
+        CPU(); //Constructor
 
-    //Inputs and outputs
-    byte *Bus; //Main CPU bus
-    bool *IF; //CPU Interrupt mode flag (Inverted)
-    bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
-    bool *Addw; //Address Write signal (Inverted)
-    bool *Addr; //Address Read signal (Inverted)
-    pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
+        //Inputs and outputs
+        byte *Bus; //Main CPU bus
+        bool *IF; //CPU Interrupt mode flag (Inverted)
+        bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
+        bool *Addw; //Address Write signal (Inverted)
+        bool *Addr; //Address Read signal (Inverted)
+        pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
 
-    //CPU update (execution cycle update)
-    void update();
+        //CPU update (execution cycle update)
+        void update();
 };
 
 #endif

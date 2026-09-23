@@ -7,6 +7,10 @@ UPDATED ON:
 23. september, 2026.
 */
 
+#include <cstdint>
+#include <cstdio>
+#include <math.h>
+
 #include "LIB_osnova_utils.h" //Header file of this library
 
 //Data types
