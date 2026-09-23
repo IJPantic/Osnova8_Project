@@ -4,6 +4,7 @@
 /*
 UPDATED ON:
 22. september, 2026.
+23. september, 2026.
 */
 
 #include "LIB_osnova_utils.h" //Header file of this library
@@ -18,7 +19,6 @@ pnt adrAREA = 65535; //Address area mask of ADD address space (0x0FFFF)
 pnt sctAREA = 1048575-65535; //Sector area mask of ADD address space (0XF0000)
 
 //Functions
-int trim(int value, int start, int end);
 
 //trims off all bits except selected part
 int trim(int value, int start, int end)

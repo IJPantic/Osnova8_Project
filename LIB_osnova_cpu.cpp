@@ -11,6 +11,7 @@ UPDATED ON:
 20. september, 2026.
 21. september, 2026.
 22. september, 2026.
+23. september, 2026.
 */
 
 #include <cstdint>
@@ -20,22 +21,9 @@ UPDATED ON:
 
 #include "LIB_osnova_cpu.h" //Header file of this library
 
-//classes
-class CPU;
-
-//Defining CPU
+//Defining the Osnova8 CPU
 class CPU
 {
-    public:
-
-    //Inputs and outputs
-    byte *Bus; //Main CPU bus
-    bool *IF; //CPU Interrupt mode flag (Inverted)
-    bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
-    bool *Addw; //Address Write signal (Inverted)
-    bool *Addr; //Address Read signal (Inverted)
-    pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
-
     private:
 
     //Flags (Conditions)
@@ -168,8 +156,18 @@ class CPU
         }
     }
 
-    //CPU update, execution cycle update
-    void updateCPU()
+    public:
+
+    //Inputs and outputs
+    byte *Bus; //Main CPU bus
+    bool *IF; //CPU Interrupt mode flag (Inverted)
+    bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
+    bool *Addw; //Address Write signal (Inverted)
+    bool *Addr; //Address Read signal (Inverted)
+    pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
+
+    //CPU update (execution cycle update)
+    void update()
     {
         stage++; //Updating cycle stage
 
