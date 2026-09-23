@@ -6,6 +6,7 @@ UPDATED ON:
 23. september, 2026.
 
 Contents table:
+
         C++ files:
             Utilities library:
                 LIB_osnova_utils.cpp
