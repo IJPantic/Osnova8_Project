@@ -4,29 +4,38 @@ Osnova project contents:
 
 A)Utilities library:
 
--LIB_osnova_utils.cpp  
--LIB_osnova_utils.h
+LIB_osnova_utils.cpp  
+LIB_osnova_utils.h
 
 B)CPU library:
 
--LIB_osnova_cpu.cpp
--LIB_osnova_cpu.h
+LIB_osnova_cpu.cpp
+LIB_osnova_cpu.h
+
+C)RAM library:
+
+LIB_4kb_ram.cpp
+LIB_4kb_ram.h
+
+D)CPU test:
+
+cpu_test.cpp (Incomplete)
 
 2.Logisim-evolution files:
 
 A)TTL 74XX library:
 
--TTL_74XX.circ
+TTL_74XX.circ
 
 B)CPU library:
 
--Osnova8_CPU.circ
+Osnova8_CPU.circ
 
 3.Image files:
 
--CPU_arhitecture_drawing.jpg
--Logisim_preview.png
+CPU_arhitecture_drawing.jpg
+Logisim_preview.png
 
 4.Document files:
 
--Osnova8_CPU_ISA.txt
+Osnova8_CPU_ISA.txt
