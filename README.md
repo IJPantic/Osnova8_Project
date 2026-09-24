@@ -23,7 +23,7 @@ Contents table:
                 LIB_4kb_ram.h
 
             CPU test:
-                cpu_test.cpp (Incomplete)
+                Osnova_emulator.cpp (Incomplete)
 
         Logisim-evolution files:
             TTL 74XX library:
