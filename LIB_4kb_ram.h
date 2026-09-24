@@ -4,6 +4,7 @@
 /*
 UPDATED ON:
 23. september, 2026.
+24. september, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -14,16 +15,18 @@ UPDATED ON:
 //Defining RAM
 class RAM
 {
-    byte memory[4096]; //RAM's storage
-
     public:
         RAM(); //Constructor
+
+        byte memory[4096]; //RAM's storage
 
         //INPUTS AND OUTPUTS
 
         //Buses
         pnt *adrBus; //Memory storage address bus
         byte *dataBus; //Memory IO data bus
+
+        pnt validAdr; //Actually usable address space of RAM
 
         //Control lines
         bool *WE; //Write enable (Inverted)

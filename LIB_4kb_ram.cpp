@@ -4,6 +4,7 @@
 /*
 UPDATED ON:
 23. september, 2026.
+24. september, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -21,6 +22,8 @@ RAM::RAM()
     pnt *adrBus; //Memory storage address bus
     byte *dataBus; //Memory IO data bus
 
+    pnt validAdr; //Actually usable address space of RAM
+
     //Control lines
     bool *WE; //Write enable (Inverted)
     bool *RE; //Read enable (Inverted)
@@ -36,11 +39,13 @@ void RAM::update()
 {
     if(!*CE); //Is chip selected?
     {
+        validAdr = trim(*adrBus, 0, 12); //Containing within 12-bit (4096 addresses) address space
+
         if(*RE && !*WE) //writing from data bus to RAM
-            memory[*adrBus] = *dataBus;
+            memory[validAdr] = *dataBus;
 
         else if(!*RE && *WE) //Reading from RAM to data bus
-            *dataBus = memory[*adrBus];
+            *dataBus = memory[validAdr];
     }
 }
 
