@@ -1,26 +1,19 @@
-//Osnova c++ utilities library
+//Osnova c++ utilities library file
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
 UPDATED ON:
 22. september, 2026.
 23. september, 2026.
+25. september, 2026.
 */
-
-#include <cstdint>
-#include <cstdio>
-#include <math.h>
 
 #include "LIB_osnova_utils.h" //Header file of this library
 
-//Data types
-using byte = uint8_t; //CPU's word, 8-bit
-using pnt = int; //Pointer, 20-bit
-
 //Universal variables that will be often used
 byte FF = 255; //"FF" as 0xFF, max value of a byte
-pnt adrAREA = 65535; //Address area mask of ADD address space (0x0FFFF)
-pnt sctAREA = 1048575-65535; //Sector area mask of ADD address space (0XF0000)
+pnt adrAREA = 0X0FFFF; //Address area mask of ADD address space
+pnt sctAREA = 0xF0000; //Sector area mask of ADD address
 
 //Functions
 

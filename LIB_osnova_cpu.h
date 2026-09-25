@@ -1,4 +1,4 @@
-//Osnova8 CPU c++ emulator header file
+//Osnova8 CPU c++ emulator library header file
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -61,7 +61,7 @@ class CPU
 
         byte ALU; //Arithmetic Logic Unit
 
-        byte *ADD; //ADdress Device
+        byte ADD; //ADdress Device
 
         //Instruction Register and derived values
         byte IR;
@@ -80,10 +80,11 @@ class CPU
         byte *Src[16];
 
         //Calculates ALU's operation result, ALU is 8-bit version of 74181 IC (equivalent of two 74181 cascaded)
-        int calcALU(int A, int B, int op, bool mode, int cin);
+        byte calcALU(byte A, byte B, int op, bool mode, int cin);
 
         //Inputs and outputs
         byte *Bus; //Main CPU bus
+        bool *FXN; //Flag X Negated CPU pin
         bool *IF; //CPU Interrupt mode flag (Inverted)
         bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
         bool *Addw; //Address Write signal (Inverted)

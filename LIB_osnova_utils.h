@@ -1,10 +1,11 @@
-//Osnova c++ utilities header file
+//Osnova c++ utilities library header file
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
 UPDATED ON:
 22. september, 2026.
 23. september, 2026.
+25. september, 2026.
 */
 
 #include <cstdint>
@@ -26,7 +27,7 @@ extern pnt sctAREA; //Sector area mask of ADD address space (0XF0000)
 //Functions
 
 //trims off all bits except selected part
-extern int trim(int value, int start, int end);
+int trim(int value, int start, int end);
 
 #endif
 

@@ -1,10 +1,11 @@
-//Osnova c++ 4KB RAM header file
+//Osnova c++ 4KB RAM library header file
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
 UPDATED ON:
 23. september, 2026.
 24. september, 2026.
+25. september, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -18,7 +19,7 @@ class RAM
     public:
         RAM(); //Constructor
 
-        byte memory[4096]; //RAM's storage
+        byte memory[4096] = {0}; //RAM's storage
 
         //INPUTS AND OUTPUTS
 
