@@ -14,11 +14,7 @@ UPDATED ON:
 23. september, 2026.
 24. september, 2026.
 25. september, 2026.
-*/
-
-/*
-TODO intmn nek bude reg za int a if je samo pin, on nece uvik bit 1
-TODO malo pazi di je IF inveritran a di nije
+30. september, 2026.
 */
 
 #include "LIB_osnova_cpu.h" //Header file of this library
@@ -29,7 +25,7 @@ CPU::CPU()
     //Flags (Conditions)
     EQU; //RA equals RB (Branch on RA == RB)
     FLGXN; //Pin Flag X Negated (Branch on 0)
-    INTMN; //CPU's INTterrupt Mode Negated (Branch on IF == 1)
+    INTMN = 1; //CPU's INTterrupt Mode Negated (Branch on IF == 1)
     CARRY; //ALU's operation results in a CARRY (Branch on RA ? RB > 255)
     NEG; //ALU's result is negative (Branch on RA ? RB < 0)
     ODD; //ALU's result is ODD (Branch on (RA ? RB)%2 == 1)
@@ -123,7 +119,7 @@ CPU::CPU()
 
     //Inputs and outputs
     *Bus; //Main CPU bus
-    *FXN; //Flag X Negated CPU pin
+    *FX; //Flag X CPU pin (Inverted)
     *IF; //CPU Interrupt mode flag (Inverted)
     *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
     *Addw; //Address Write signal (Inverted)
@@ -194,7 +190,7 @@ void CPU::update()
         //1. INSTRUCTION FETCH
         case 0: //Stage 0
             i = 0; //Interrupt mode check
-            if(!*IF) i = 2;
+            if(INTMN) i = 2;
 
             *ADDB = *Pointers[i]; //Setting address of a current instruction
             *Addr = 0; //Releasing PC (Or PCI, depending on interrupt flag state)
@@ -241,7 +237,7 @@ void CPU::update()
 
             //Flags check
             EQU = RA == RB; //Are registers A and B equal?
-            FLGXN = *FXN; //Is flag x CPU pin zero?
+            FLGXN = !*FX; //Is flag x CPU pin zero?
             INTMN = !*IF; //Is CPU not in interrupt mode?
             CARRY = RA+RB > FF; //Is there a carry?
             NEG = ALU >= 128; //Is MSB one?
@@ -278,11 +274,11 @@ void CPU::update()
 
                 case 12: PS = trim(*Bus, 4, 8); break; //Pointer Selector (SRC -> PS), note its size and the way it is connected
 
-                case 13: *IF = 0; break; //Interrupt Set Internal (Inverted Set), switches on CPU's interrupt mode
+                case 13: INTMN = 0; break; //Interrupt Set Internal (Inverted Set), switches on CPU's interrupt mode
 
                 case 14: *ITX = 0; break; //Interrupt Set External (Inverted Set)
 
-                case 15: *IF = 1; break; //Interrupt Enable (Inverted Reset), switches off CPU's interrupt mode
+                case 15: INTMN = 1; break; //Interrupt Enable (Inverted Reset), switches off CPU's interrupt mode
             }
         break;
 
@@ -297,7 +293,7 @@ void CPU::update()
             *Addw = 1;
 
             i = 0; //Interrupt mode check
-            if(*IF) i = 2;
+            if(INTMN) i = 2;
 
             *Addr = 0; //Releasing PC (Or PCI, depending on interrupt flag state)
         break;
@@ -310,5 +306,5 @@ void CPU::update()
             stage = 0; //Resets cycle
         break;
     }
-};
+}
 

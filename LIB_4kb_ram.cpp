@@ -8,6 +8,10 @@ UPDATED ON:
 25. september, 2026.
 */
 
+/*
+TODO napravi da mos birat koliki ce bit ram i preimenuj unda u mem posto ce bit univerzalno i zq memorije i registre i da mos odabrat je li ro ili wo ili rw
+*/
+
 #include "LIB_4kb_ram.h" //Header file of this library
 
 //Defining RAM

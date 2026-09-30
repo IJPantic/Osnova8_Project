@@ -84,7 +84,7 @@ class CPU
 
         //Inputs and outputs
         byte *Bus; //Main CPU bus
-        bool *FXN; //Flag X Negated CPU pin
+        bool *FX; //Flag X CPU pin (Inverted)
         bool *IF; //CPU Interrupt mode flag (Inverted)
         bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
         bool *Addw; //Address Write signal (Inverted)
