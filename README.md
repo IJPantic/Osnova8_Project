@@ -19,7 +19,7 @@ Contents table:
                 LIB_osnova_mem.h
 
             CPU test:
-                Osnova_emulator.cpp (Incomplete)
+                Osnova_emulator.cpp (Incomplete, not working currently)
 
         Logisim-evolution files:
             TTL 74XX library:
