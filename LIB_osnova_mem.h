@@ -1,4 +1,4 @@
-//Osnova c++ memory library header file
+//Osnova c++ memory library header file, GPL-V3
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -7,6 +7,8 @@ UPDATED ON:
 24. september, 2026.
 25. september, 2026.
 30. september, 2026.
+1. October, 2026.
+2. October, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -14,7 +16,7 @@ UPDATED ON:
 #ifndef LIB_osnova_mem
 #define LIB_osnova_mem
 
-//Defining RAM
+//Defining memory
 class MEM
 {
     public:
@@ -24,22 +26,22 @@ class MEM
 
         int mem_size; //Memory size (In bytes)
 
-        char mem_type[3]; //Memory type ('rw' read/write, '-w' write only, 'r-' read only)
+        char p_mem_type[3]; //Memory type ('rw' read/write, '-w' write only, 'r-' read only)
 
-        byte *memory; //Memory storage
+        byte_t *memory; //Memory storage
 
         //INPUTS AND OUTPUTS
 
         //Buses
-        pnt *adr_bus; //Memory storage address bus
-        byte *data_bus; //Memory IO data bus
+        pnt_t *io_adrb; //Memory storage address bus
+        byte_t *io_db; //Memory data bus
 
         //Control lines
-        bool *we; //Write enable (Inverted)
-        bool *re; //Read enable (Inverted)
-        bool *ce; //Chip enable (Inverted)
+        bool *io_we; //Write enable (Inverted)
+        bool *io_re; //Read enable (Inverted)
+        bool *io_ce; //Chip enable (Inverted)
 
-        //MEMORY AACTIONS
+        //MEMORY ACTIONS
 
         void update(); //Memory value update
 

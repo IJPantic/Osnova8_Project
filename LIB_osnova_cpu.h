@@ -1,4 +1,4 @@
-//Osnova8 CPU c++ emulator library header file
+//Osnova8 CPU c++ emulator library header file, GPL-V3
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -6,6 +6,7 @@ UPDATED ON:
 22. september, 2026.
 23. september, 2026.
 24. september, 2026.
+2. October, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -20,53 +21,53 @@ class CPU
         CPU(); //Constructor
 
         //Flags (Conditions)
-        bool EQU; //RA equals RB (Branch on RA == RB)
-        bool FLGXN; //Pin Flag X Negated (Branch on 0)
-        bool INTMN; //CPU's INTterrupt Mode Negated (Branch on IF == 1)
-        bool CARRY; //ALU's operation results in a CARRY (Branch on RA ? RB > 255)
-        bool NEG; //ALU's result is negative (Branch on RA ? RB < 0)
-        bool ODD; //ALU's result is ODD (Branch on (RA ? RB)%2 == 1)
-        bool NC; //No Condition, always branches (1)
-        bool DONT; //DON'T, never branches (0)
+        bool equ; //RA equals RB (Branch on RA == RB)
+        bool flgxn; //Pin Flag X Negated (Branch on 0)
+        bool intmn; //CPU's INTterrupt Mode Negated (Branch on IF == 1)
+        bool carry; //ALU's operation results in a CARRY (Branch on RA ? RB > 255)
+        bool neg; //ALU's result is negative (Branch on RA ? RB < 0)
+        bool odd; //ALU's result is ODD (Branch on (RA ? RB)%2 == 1)
+        const bool NC; //No Condition, always branches (1)
+        const bool DONT; //DON'T, never branches (0)
 
-        bool *Cnd[16]; //Cnd arguments table
+        bool *cnd[16]; //Cnd arguments table
 
         //Pointers and pointer file
-        pnt PC; //Program Counter
-        pnt AP; //Address Pointer
-        pnt PCI; //Program Counter Interrupt
-        pnt API; //Address Pointer Interrupt
+        pnt_t pc; //Program Counter
+        pnt_t ap; //Address Pointer
+        pnt_t pci; //Program Counter Interrupt
+        pnt_t api; //Address Pointer Interrupt
 
-        pnt *Pointers[4]; //Pointer file
+        pnt_t *pf[4]; //Pointer file
 
         //Genereal purpose registers
-        byte RA; //Register A
-        byte RB; //Register B
-        byte RC; //Register C
-        byte RESR; //Reserve Register (Predicted to be used by Interrupt Handler program only)
+        byte_t ra; //Register A
+        byte_t rb; //Register B
+        byte_t rc; //Register C
+        byte_t resr; //Reserve Register (Predicted to be used by Interrupt Handler program only)
 
         //Special purpose Register
-        byte DVR; //Direct Value Register
-        byte PS; //Pointer Selector (4-bit register, connected to bus with higher 4 bits; 4 thru 7)
+        byte_t dvr; //Direct Value Register
+        byte_t ps; //Pointer Selector (4-bit register, connected to bus with higher 4 bits; 4 thru 7)
 
         //Values derived from other states
-        byte PFL; //Pointer File Low
-        byte PFH; //Pointer File High
-        byte SF; //Sector File
+        byte_t pfl; //Pointer File Low
+        byte_t pfh; //Pointer File High
+        byte_t sf; //Sector File
 
-        byte SFPS; //Sector File (Lower part), Pointer Selector (Higher part)
+        byte_t sfps; //Sector File (Lower part), Pointer Selector (Higher part)
 
-        byte PRA; //Pointer Read Address (PS's lower part)
-        byte PWA; //Pointer Write Address (PS's higher part)
+        byte_t pra; //Pointer Read Address (PS's lower part)
+        byte_t pwa; //Pointer Write Address (PS's higher part)
 
-        byte ALU; //Arithmetic Logic Unit
+        byte_t alu; //Arithmetic Logic Unit
 
-        byte ADD; //ADdress Device
+        byte_t add; //ADdress Device
 
         //Instruction Register and derived values
-        byte IR;
-        byte Opc; //Opcode, higher 4-bit part of IR
-        byte Arg; //Argument, lower 4-bit part of IR
+        byte_t ir;
+        byte_t opc; //Opcode, higher 4-bit part of IR
+        byte_t arg; //Argument, lower 4-bit part of IR
 
         //ALU
         int op; //(S0, S1, S2, S3) pins (Selection (Of operation)) 
@@ -77,19 +78,19 @@ class CPU
         int i; //Don't touch ^^'
 
         //BUS arguments table (Data sources)
-        byte *Src[16];
+        byte_t *src[16];
 
         //Calculates ALU's operation result, ALU is 8-bit version of 74181 IC (equivalent of two 74181 cascaded)
-        byte calcALU(byte A, byte B, int op, bool mode, int cin);
+        byte_t calc_alu(byte_t A, byte_t B, int op, bool mode, int cin);
 
         //Inputs and outputs
-        byte *Bus; //Main CPU bus
-        bool *FX; //Flag X CPU pin (Inverted)
-        bool *IF; //CPU Interrupt mode flag (Inverted)
-        bool *ITX; //Interrupt trigger external (Triggers interrupt in other devices) (Inverted)
-        bool *Addw; //Address Write signal (Inverted)
-        bool *Addr; //Address Read signal (Inverted)
-        pnt *ADDB; //ADdress DEvice Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
+        byte_t *io_db; //Main CPU Data Bus
+        bool *io_fx; //Flag X CPU pin (Inverted)
+        bool *io_if; //CPU Interrupt mode Flag (Inverted)
+        bool *io_itx; //Interrupt Trigger External (Triggers interrupt in other devices) (Inverted)
+        bool *io_addw; //ADdress Device Write signal (Inverted)
+        bool *io_addr; //ADdress Device Read signal (Inverted)
+        pnt_t *io_adrb; //ADdRess Bus (4-bit sectors, each sector 16-bit address space (1048576B = 1MB memory)
 
         //CPU update (execution cycle update)
         void update();

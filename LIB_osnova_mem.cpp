@@ -1,4 +1,4 @@
-//Osnova c++ memory library file
+//Osnova c++ memory library file, GPL-V3
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -7,6 +7,7 @@ UPDATED ON:
 24. september, 2026.
 25. september, 2026.
 30. september, 2026.
+2. October, 2026.
 */
 
 #include "LIB_osnova_mem.h" //Header file of this library
@@ -28,13 +29,13 @@ MEM::MEM(int size, const char type[3])
     //INPUTS AND OUTPUTS
 
     //Buses
-    *adr_bus; //Memory storage address bus
-    *data_bus; //Memory IO data bus
+    *io_adrb; //Memory storage address bus
+    *io_db; //Memory data bus
 
     //Control lines
-    *we; //Write enable (Inverted)
-    *re; //Read enable (Inverted)
-    *ce; //Chip enable (Inverted)
+    *io_we; //Write enable (Inverted)
+    *io_re; //Read enable (Inverted)
+    *io_ce; //Chip enable (Inverted)
 
     //MEMORY ACTIONS
 
@@ -48,13 +49,13 @@ void MEM::update()
 {
     if(!*ce) //Is chip selected?
     {
-        pnt valid_adr = trim(*adr_bus, 0, log2(mem_size)); //Containing 20-bit address within actual memory address space
+        pnt_t valid_adr = trim(*io_adrb, 0, log2(mem_size)); //Containing 20-bit address within actual memory address space
 
-        if(mem_type[0] == 'r' && !*re && *we) //Reading from memory to data bus
-            *data_bus = memory[valid_adr];
+        if(mem_type[0] == 'r' && !*io_re && *io_we) //Reading from memory to data bus
+            *io_db = memory[valid_adr];
 
-        else if(mem_type[1] == 'w' && *re && !*we) //writing from data bus to memory
-            memory[valid_adr] = *data_bus;
+        else if(mem_type[1] == 'w' && *io_re && !*io_we) //writing from data bus to memory
+            memory[valid_adr] = *io_db;
     }
 }
 
