@@ -19,8 +19,8 @@ Contents table:
                 LIB_osnova_cpu.h
 
             RAM library:
-                LIB_4kb_ram.cpp
-                LIB_4kb_ram.h
+                LIB_mem.cpp
+                LIB_mem.h
 
             CPU test:
                 Osnova_emulator.cpp (Incomplete)
