@@ -10,52 +10,76 @@ UPDATED ON:
 28. september, 2026.
 29. september, 2026.
 30. september, 2026.
+2. October, 2026.
+3. October, 2026.
 */
 
 #include <stdio.h>
 #include <cstring>
+#include <pthread.h>
+#include <time.h>
 #include "LIB_osnova_utils.h"
 
 #include "LIB_osnova_cpu.h"
-#include "LIB_4kb_ram.h"
+#include "LIB_osnova_mem.h"
 
 /*
 TODO napravi daa je ovo glavni program ali sadrzi #include main (lib) koji di ti unda pises kakav ce bit harwaare
-TODO da memoriju mos stvorit raznih veicina da nije fiksno 4kb
-TODO da mos isprintat arg i opc i alu table
-TODO jnapravi daa se sve ispisuje u hex, a upisuje u ecimalnom ili 0x pa bude hex, također napravi
-TODO napravi command koji ispisuje hex vrijednost u dec i obratno
-TODO napravi threading tako da mos odvojeno diraat harwaarev i runat ga pri staalnoj frekvenciji
 */
 
 //Argument decompile table (Turns argument number into argument's name)
-const char *decompileArg(byte arg)
+const char *decompile_arg(byte_t opc, byte_t arg)
 {
-    switch(arg)
+    if(opc) //Opcode is not "jmp" instruction
     {
-        case 0: return "alu"; break;
-        case 1: return "rc "; break;
-        case 2: return "sf "; break;
-        case 3: return "pfl"; break;
-        case 4: return "pfh"; break;
-        case 5: return "resr"; break;
-        case 6: return "add"; break;
-        case 7: return "dvr"; break;
-        case 8: return "abc"; break;
-        case 9: return "x  "; break;
-        case 10: return "x  "; break;
-        case 11: return "x  "; break;
-        case 12: return "x  "; break;
-        case 13: return "x  "; break;
-        case 14: return "x  "; break;
-        case 15: return "x  "; break;
+        switch(arg) //Argument is for data sources
+        {
+            case 0: return "alu  "; break;
+            case 1: return "rc   "; break;
+            case 2: return "sf   "; break;
+            case 3: return "pfl  "; break;
+            case 4: return "pfh  "; break;
+            case 5: return "resr "; break;
+            case 6: return "add  "; break;
+            case 7: return "dvr  "; break;
+            case 8: return "x    "; break;
+            case 9: return "x    "; break;
+            case 10: return "x    "; break;
+            case 11: return "x    "; break;
+            case 12: return "x    "; break;
+            case 13: return "x    "; break;
+            case 14: return "x    "; break;
+            case 15: return "x    "; break;
+        }
+
+    }else //Opcode is "jmp" instruction
+    {
+        switch(arg) //Argument is for jump (branch) conditions
+        {
+            case 0: return "nc    "; break;
+            case 1: return "equ   "; break;
+            case 2: return "flgxn "; break;
+            case 3: return "intmn "; break;
+            case 4: return "carry "; break;
+            case 5: return "neg   "; break;
+            case 6: return "odd   "; break;
+            case 7: return "dont  "; break;
+            case 8: return "nc    "; break;
+            case 9: return "equ   "; break;
+            case 10: return "flgxn "; break;
+            case 11: return "intmn "; break;
+            case 12: return "carry "; break;
+            case 13: return "neg   "; break;
+            case 14: return "odd   "; break;
+            case 15: return "dont  "; break;
+        }
     }
 
     return "Err";
 }
 
 //Opcode decompile table (Turns opcode number into opcode's name)
-const char *decompileOpc(byte opc)
+const char *decompile_opc(byte_t opc)
 {
     switch(opc)
     {
@@ -81,73 +105,74 @@ const char *decompileOpc(byte opc)
 }
 
 //ALU operation decompile table (Turns ALU op number into argument's name)
-const char *decompileAluOp(int op, bool mode, int cin)
+const char *decompile_alu_op(int op, bool mode, int cin)
 {
     if(mode) //Logic operations
     {
         switch(op)
         {
-            case 0: return "!A"; break;
-            case 1: return "!(A || B)"; break;
-            case 2: return "(!A) && B"; break;
-            case 3: return "0"; break;
-            case 4: return "!(A && B)"; break;
-            case 5: return "!B"; break;
-            case 6: return "A ^ B"; break;
-            case 7: return "A && (!B)"; break;
-            case 8: return "(!A) || B"; break;
-            case 9: return "!(A ^ B)"; break;
-            case 10: return "B"; break;
-            case 11: return "A && B"; break;
-            case 12: return "1"; break;
-            case 13: return "A || (!B)"; break;
-            case 14: return "A || B"; break;
-            case 15: return "A"; break;
+            case 0: return "!A                      "; break;
+            case 1: return "!(A || B)               "; break;
+            case 2: return "(!A) && B               "; break;
+            case 3: return "0                       "; break;
+            case 4: return "!(A && B)               "; break;
+            case 5: return "!B                      "; break;
+            case 6: return "A ^ B                   "; break;
+            case 7: return "A && (!B)               "; break;
+            case 8: return "(!A) || B               "; break;
+            case 9: return "!(A ^ B)                "; break;
+            case 10: return "B                       "; break;
+            case 11: return "A && B                  "; break;
+            case 12: return "1                       "; break;
+            case 13: return "A || (!B)               "; break;
+            case 14: return "A || B                  "; break;
+            case 15: return "A                       "; break;
         }
+
     }else //Arithmetic operations
     {
         if(cin) //Without carry in
         {
             switch(op)
             {
-                case 0: return "A"; break;
-                case 1: return "(A || B)"; break;
-                case 2: return "(A || (!B))"; break;
-                case 3: return "255"; break;
-                case 4: return "A+(A && (!B))"; break;
-                case 5: return "(A || B)+(A && (!B))"; break;
-                case 6: return "A-B-1"; break;
-                case 7: return "(A && (!B))-1"; break;
-                case 8: return "A+(A && B)"; break;
-                case 9: return "A+B"; break;
-                case 10: return "(A || (!B))+(A && B)"; break;
-                case 11: return "(A && B)-1"; break;
-                case 12: return "A+A"; break;
-                case 13: return "(A || B)+A"; break;
-                case 14: return "(A || (!B))+A"; break;
-                case 15: return "A-1"; break;
+                case 0: return "A                       "; break;
+                case 1: return "(A || B)                "; break;
+                case 2: return "(A || (!B))             "; break;
+                case 3: return "255                     "; break;
+                case 4: return "A+(A && (!B))           "; break;
+                case 5: return "(A || B)+(A && (!B))    "; break;
+                case 6: return "A-B-1                   "; break;
+                case 7: return "(A && (!B))-1           "; break;
+                case 8: return "A+(A && B)              "; break;
+                case 9: return "A+B                     "; break;
+                case 10: return "(A || (!B))+(A && B)    "; break;
+                case 11: return "(A && B)-1              "; break;
+                case 12: return "A+A                     "; break;
+                case 13: return "(A || B)+A              "; break;
+                case 14: return "(A || (!B))+A           "; break;
+                case 15: return "A-1                     "; break;
             }
 
         }else //With carry in
         {
             switch(op)
             {
-                case 0: return "A +1"; break;
-                case 1: return "(A || B) +1"; break;
-                case 2: return "(A || (!B)) +1"; break;
-                case 3: return "0"; break;
-                case 4: return "A+(A && (!B)) +1"; break;
-                case 5: return "(A || B)+(A && (!B)) +1"; break;
-                case 6: return "A-B"; break;
-                case 7: return "(A && (!B))"; break;
-                case 8: return "A+(A && B) +1"; break;
-                case 9: return "A+B +1"; break;
-                case 10: return "(A || (!B))+(A && B) +1"; break;
-                case 11: return "(A && B)"; break;
-                case 12: return "A+A +1"; break;
-                case 13: return "(A || B)+A +1"; break;
-                case 14: return "(A || (!B))+A +1"; break;
-                case 15: return "A"; break;
+                case 0: return "A +1                    "; break;
+                case 1: return "(A || B) +1             "; break;
+                case 2: return "(A || (!B)) +1          "; break;
+                case 3: return "0                       "; break;
+                case 4: return "A+(A && (!B)) +1        "; break;
+                case 5: return "(A || B)+(A && (!B)) +1 "; break;
+                case 6: return "A-B                     "; break;
+                case 7: return "(A && (!B))             "; break;
+                case 8: return "A+(A && B) +1           "; break;
+                case 9: return "A+B +1                  "; break;
+                case 10: return "(A || (!B))+(A && B) +1 "; break;
+                case 11: return "(A && B)                "; break;
+                case 12: return "A+A +1                  "; break;
+                case 13: return "(A || B)+A +1           "; break;
+                case 14: return "(A || (!B))+A +1        "; break;
+                case 15: return "A                       "; break;
             }
         }
     }
@@ -155,62 +180,94 @@ const char *decompileAluOp(int op, bool mode, int cin)
     return "Err";
 }
 
-//INITIALIZE HARDWARE
-CPU MainCPU;
-RAM MainRAM;
+bool sim_running;
+pthread_t thread;
+int stage = 0; //Cycle's stage
+int freq = 1;
 
-//Every clock tick
+//INITIALIZE HARDWARE
+CPU main_cpu;
+MEM main_ram(65536, "rw");
+
 void update()
 {
-    MainRAM.update();
-    MainCPU.update();
+    main_cpu.update();
+    main_ram.update();
+}
+
+//Every clock tick
+void *update_thread(void *freq)
+{
+    int freq_num = *(int*)freq;
+
+    while(sim_running)
+    {
+        for(int i = 0; i < 1000/freq_num; i++)
+            update();
+
+        stage++;
+        if(stage > 7) stage = 0; //Bounds it's value between 0 and 7
+
+        /* save start time */
+        const time_t start = time(NULL);
+
+        time_t current;
+        do{
+            /* get current time */
+            time(&current);
+
+            /* break loop when the requested number of seconds have elapsed */
+        }while(difftime(current, start) < 1);
+    }
+
+    return NULL;
 }
 
 //CONNECT HARDWARE
 int main()
 {
     int mems_num = 1;
-    byte *mems[mems_num]; //Napraavi da je zasebna funckija koju user moze pokrenuti
+    byte_t *mems[mems_num]; //Napraavi da je zasebna funckija koju user moze pokrenuti TODO
     int mems_size[mems_num];
 
     int cpus_num = 1;
-    CPU *cpus[cpus_num]; //Napraavi da je zasebna funckija koju user moze pokrenuti
+    CPU *cpus[cpus_num]; //Napravi da je zasebna funckija koju user moze pokrenuti TODO
 
     //COMPUTER CONNECTION
-    byte DataBus; //CPU's data bus
-    pnt AdrBus; //CPU's ddress bus
+    byte_t data_bus; //Data bus
+    pnt_t adr_bus; //Address bus
 
-    bool WE = 1; //CPU's write enable signal
-    bool RE = 1; //CPU's read enable signal
+    bool we = 1; //CPU's write enable signal
+    bool re = 1; //CPU's read enable signal
 
-    bool IntD; //Interrupt ADD line
-    bool IntC = 1; //Interrupt CPU line
-    bool FlgXN = 1; //CPU's flag x pin
-    bool CE = 0; //RAM's chip enable signal
+    bool int_add; //Interrupt ADD line
+    bool int_cpu = 1; //Interrupt CPU line
+    bool flgx = 1; //CPU's flag x pin
+    bool ce = 0; //RAM's chip enable signal
 
     //MAIN CPU CONNECTION
-    cpus[0] = &MainCPU;
+    cpus[0] = &main_cpu;
 
-    MainCPU.Bus = &DataBus; //Data bus
-    MainCPU.ADDB = &AdrBus; //Address bus
+    main_cpu.io_db = &data_bus; //Data bus
+    main_cpu.io_adrb = &adr_bus; //Address bus
 
-    MainCPU.IF = &IntC; //Interrupt CPU line
-    MainCPU.ITX = &IntD; //Interrupt ADD line
-    MainCPU.FX = &FlgXN; //CPU's flag x pin
+    main_cpu.io_if = &int_cpu; //Interrupt CPU line
+    main_cpu.io_itx = &int_add; //Interrupt ADD line
+    main_cpu.io_fx = &flgx; //CPU's flag x pin
 
-    MainCPU.Addw = &WE; //Write enable signal
-    MainCPU.Addr = &RE; //Read enable signal
+    main_cpu.io_addw = &we; //Write enable signal
+    main_cpu.io_addr = &re; //Read enable signal
 
     //MAIN RAM CONNECTION
-    mems[0] = MainRAM.memory;
-    mems_size[0] = 4096;
+    mems[0] = main_ram.memory;
+    mems_size[0] = 65536;
 
-    MainRAM.dataBus = &DataBus; //Data bus
-    MainRAM.adrBus = &AdrBus; //Address bus
+    main_ram.io_db = &data_bus; //Data bus
+    main_ram.io_adrb = &adr_bus; //Address bus
 
-    MainRAM.WE = &WE; //Write enable signal
-    MainRAM.RE = &RE; //Read enable signal
-    MainRAM.CE = &CE; //Chip enable signal
+    main_ram.io_we = &we; //Write enable signal
+    main_ram.io_re = &re; //Read enable signal
+    main_ram.io_ce = &ce; //Chip enable signal
 
     //TODO OVO iznad nije dio emulator programa
 
@@ -223,19 +280,19 @@ int main()
     char poke[] = "poke"; //Changes a value at a certain memory address
     char peek[] = "peek"; //Prints a value at a certain memory address
     char help[] = "help"; //Prints all commands and how to use them
-    //char sim[] = "sim"; //?? TODO
-    //char list[] = "list"; //?? TODO
+    char dec[] = "dec"; //takes hex value, prints dec value
+    char hex[] = "hex"; //takes dec value, prints hex value
+    char list[] = "list"; //Lists opc,arg, alu
+    char sim[] = "sim"; //Simulation start, stop, frequency
 
     char cmd[16]; //Command (Emulator command)
 
     int arg1, arg2, arg3; //Command integer arguments
-    //char str1[16]; //Command string arguments
-
-    int stage = 0; //Cycle's stage
+    char str1[16]; //Command string arguments
 
     //Short program notice
     printf("Osnova c++ emulator, type 'help' to list all commands and their arguments\n");
-    printf("Created by Ivan Jonjic (IJPantic on gitgub), GPL V3\n \n");
+    printf("Created by Ivan Jonjic (IJPantic on github), GPL-V3\n \n");
 
     //EMULATOR CONTROLS
     while(true)
@@ -273,36 +330,20 @@ int main()
         {
             scanf("%d", &arg1); //Reads argument MEM
 
-            byte *memory = mems[arg1]; //Selected memory to dump
+            byte_t *memory = mems[arg1]; //Selected memory to dump
 
             if(mems_size[arg1] > 65536) continue; //Stops command for executing if memory size is too big
 
-            for(int y = 0; y < mems_size[arg1]; y += 64) //Print rows
+            for(int y = 0; y < mems_size[arg1]; y += 32) //Print rows
             {
-                //String spacing
-                if(y < 10)
-                {
-                    printf("%d:     ", y);
-                }else if(y < 100)
-                {
-                    printf("%d:    ", y);
-                }else if(y < 1000)
-                {
-                    printf("%d:   ", y);
-                }else if(y < 10000)
-                {
-                    printf("%d:  ", y);
-                }else 
-                    printf("%d: ", y);
+                printf("0xXX%c%c%c%c: ", padd(y).digits[4], padd(y).digits[5], padd(y).digits[6], padd(y).digits[7]);
 
                 //Print rows
-                for(int x = 0; x < 64; x++)
+                for(int x = 0; x < 32; x++)
                 {
-                    byte value = memory[y+x]; //Value at a certain address in memory
+                    byte_t value = memory[y+x]; //Value at a certain address in memory
 
-                    //String spacing
-                    if(memory[y+x] > 0xe) printf("%x ", value);
-                    if(memory[y+x] < 0xf) printf("0%x ", value);
+                    printf("%s ", padd(value).digits);
                 }
 
                 printf("\n");
@@ -313,22 +354,22 @@ int main()
             scanf("%d", &arg1); //Reads argument CPU
             CPU cpu = *cpus[arg1];
 
-            printf("REG;    RA:%d     RB:%d     RC:%d     RESR:%d  DVR:%d  \n", cpu.RA, cpu.RB, cpu.RC, cpu.RESR, cpu.DVR);
-            printf("INST;   Stage:%d  IR:%d     Arg:%s Opc:%s           \n", stage, cpu.IR, decompileArg(cpu.Arg), decompileOpc(cpu.Opc));
-            printf("PC;     PFL:%d    PFH:%d    SF:%d                      \n", trim(cpu.PC, 0, 8), trim(cpu.PC, 8, 16), trim(cpu.PC, 16, 20));
-            printf("AP;     PFL:%d    PFH:%d    SF:%d                      \n", trim(cpu.AP, 0, 8), trim(cpu.AP, 8, 16), trim(cpu.AP, 16, 20));
-            printf("PCI;    PFL:%d    PFH:%d    SF:%d                      \n", trim(cpu.PCI, 0, 8), trim(cpu.PCI, 8, 16), trim(cpu.PCI, 16, 20));
-            printf("API;    PFL:%d    PFH:%d    SF:%d                      \n", trim(cpu.API, 0, 8), trim(cpu.API, 8, 16), trim(cpu.API, 16, 20));
-            printf("PS;     SFPS:%d   PS:%d     PRA:%d    PWA:%d           \n", cpu.SFPS, cpu.PS, cpu.PRA, cpu.PWA);
-            printf("ALU;    ALU:%d    Op:%s                                \n", cpu.ALU, decompileAluOp(cpu.op, cpu.mode, cpu.cin));
-            printf("FLG;    EQU:%d    FLGXN:%d  INTMN:%d  NEG:%d   ODD:%d  \n", cpu.RA, cpu.RB, cpu.RC, cpu.RESR, cpu.DVR);
+            printf("REG;    RA:%s       RB:%s       RC:%s      RESR:%s    DVR:%s \n", padd(cpu.ra).digits, padd(cpu.rb).digits, padd(cpu.rc).digits, padd(cpu.resr).digits, padd(cpu.dvr).digits);
+            printf("INST;   Stage:%d       IR:%s       Arg:%s   Opc:%s \n", stage, padd(cpu.ir).digits, decompile_arg(cpu.opc, cpu.arg), decompile_opc(cpu.opc));
+            printf("PC;     PFL:%s      PFH:%s      SF:%s \n", padd((byte_t)trim(cpu.pc, 0, 8)).digits, padd((byte_t)trim(cpu.pc, 8, 16)).digits, padd((byte_t)trim(cpu.pc, 16, 20)).digits);
+            printf("AP;     PFL:%s      PFH:%s      SF:%s \n", padd((byte_t)trim(cpu.ap, 0, 8)).digits, padd((byte_t)trim(cpu.ap, 8, 16)).digits, padd((byte_t)trim(cpu.ap, 16, 20)).digits);
+            printf("PCI;    PFL:%s      PFH:%s      SF:%s \n", padd((byte_t)trim(cpu.pci, 0, 8)).digits, padd((byte_t)trim(cpu.pci, 8, 16)).digits, padd((byte_t)trim(cpu.pci, 16, 20)).digits);
+            printf("API;    PFL:%s      PFH:%s      SF:%s \n", padd((byte_t)trim(cpu.api, 0, 8)).digits, padd((byte_t)trim(cpu.api, 8, 16)).digits, padd((byte_t)trim(cpu.api, 16, 20)).digits);
+            printf("PS;     SFPS:%s     PS:%s       PRA:%s      PWA:%s \n", padd(cpu.sfps).digits, padd(cpu.ps).digits, padd(cpu.pra).digits, padd(cpu.pwa).digits);
+            printf("ALU;    ALU:%s      Op:%s \n", padd(cpu.alu).digits, decompile_alu_op(cpu.op, cpu.mode, cpu.cin));
+            printf("FLG;    EQU:%d         FLGXN:%d       INTMN:%d       NEG:%d        ODD:%d \n", cpu.equ, cpu.flgxn, cpu.intmn, cpu.neg, cpu.odd);
             printf("\n");
 
         }else if(!strcmp(cmd, poke)) //Poke memory address
         {
             scanf("%d", &arg1); //Reads argument MEM
             scanf("%d", &arg2); //Reads argument ADR
-            scanf("%d", &arg3); //Reads argument VAL
+            scanf("%x", &arg3); //Reads argument VAL
 
             mems[arg1][arg2] = arg3;
 
@@ -337,7 +378,7 @@ int main()
             scanf("%d", &arg1); //Reads argument MEM
             scanf("%d", &arg2); //Reads argument ADR
 
-            printf("%d \n", mems[arg1][arg2]);
+            printf("%s \n", padd(mems[arg1][arg2]).digits);
 
         }else if(!strcmp(cmd, help)) //Display help list
         {
@@ -346,38 +387,91 @@ int main()
             printf("cycle TIMES -> Finishes whole CPU execution cycle TIMES times\n");
             printf("dump MEM -> Prints all contents of a MEM memory\n");
             printf("snap CPU -> Prints all current states CPU cpu states\n");
-            printf("poke MEM ADR VAL-> Writes VAL value to a memory MEM at address ADR\n");
+            printf("poke MEM ADR VAL-> Writes hexadecimal VAL value to a memory MEM at address ADR\n");
             printf("peek MEM ADR -> Prints a memory value from memory MEM at address ADR\n");
             printf("help -> Prints help list of all commnds (This is help command)\n");
-            printf("sim ACT -> ACT 'run' starts simulation, ACT 'stop' stops simulation and ACT 'speed' has additional argument 'F' which sets simulation's frequency\n");
-            printf("list TABLE -> Prints a table list of TABLE elements, TABLE 'opc' prints all opcodes, 'arg' prints all arguments, 'alu' prints all ALU operations\n");
+            printf("dec VAL -> Prints value VAL in a decimal base\n");
+            printf("hex VAL -> Prints value VAL in a hexadecimal base\n");
+            printf("list TABLE -> Lists TABLE table, where TABLE can be opc (Opcodes), argsrc (Data sources), argcnd (Jump conditions), aluop (ALU operations)\n");
+            printf("sim ACT F -> ACT 'start' starts simulation, 'stop' stops simulation and 'freq' has additional argument 'F' which sets simulation's frequency\n");
+
             printf("\n");
 
-        /*}else if(!strcmp(cmd, sim)) //
+        }else if(!strcmp(cmd, dec)) //Peek memory address
         {
-            /*scanf("%d", &str1); //Reads argument ACT
+            scanf("%x", &arg1); //Reads argument VAL
 
-            if(str1 == "run")
+            printf("%d \n", arg1);
 
-            printf("%d \n", mems[arg1][arg2]);
+        }else if(!strcmp(cmd, hex)) //Peek memory address
+        {
+            scanf("%d", &arg1); //Reads argument VAL
+
+            printf("%x \n", arg1);
 
         }else if(!strcmp(cmd, list)) //
         {
-            scanf("%15s", str1); //Reads argument ACT
+            scanf("%15s", str1); //Reads argument TABLE
 
             if(!strcmp(str1, "opc"))
             {
-                for(int i = 0; i < 16; i++)
-                    printf("%d %s \n", i, decompileArg(i));
+                for(byte_t i = 0; i < 16; i++)
+                    printf("0x%cX %s \n", padd(i).digits[3], decompile_opc(i));
 
-            }else if(str1 == "arg")
+                printf("\n");
+
+            }else if(!strcmp(str1, "argsrc"))
             {
+                for(byte_t i = 0; i < 16; i++)
+                    printf("0xX%c %s \n", padd(i).digits[3], decompile_arg(1, i));
 
+                printf("\n");
 
-            }else if(str1 == "alu")
+            }else if(!strcmp(str1, "argcnd"))
             {
+                for(byte_t i = 0; i < 8; i++)
+                    printf("0xX%c %s \n", padd(i).digits[3], decompile_arg(0, i));
 
-            }*/
+                printf("\n");
+
+            }else if(!strcmp(str1, "aluop"))
+            {
+                printf("Sel; Mode:0, Cin:0           Mode:0, Cin:1,          Mode:1, Cin:X\n");
+
+                for(byte_t i = 0; i < 16; i++)
+                {
+                    printf("0x%c: ", padd(i).digits[3]);
+
+                    printf("%s", decompile_alu_op(i, 0, 0));
+                    printf("%s", decompile_alu_op(i, 0, 1));
+                    printf("%s", decompile_alu_op(i, 1, 0));
+
+                    printf("\n");
+                }
+
+                printf("\n");
+            }
+
+        }else if(!strcmp(cmd, sim)) //
+        {
+            scanf("%15s", str1); //Reads argument ACT
+
+            if(!strcmp(str1, "start"))
+            {
+                sim_running = 1;
+                pthread_create(&thread, NULL, update_thread, &freq);
+
+            }else if(!strcmp(str1, "stop"))
+            {
+                sim_running = 0;
+                pthread_join(thread, NULL);
+
+            }else if(!strcmp(str1, "freq")) //TODO sredi da freq je zapravo frekvencija a ne samo neki broj
+            {
+                scanf("%d", &arg1); //Reads argument F
+
+                freq = arg1;
+            }
 
         }else printf("This command does not exist\n \n");
     }

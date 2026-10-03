@@ -24,7 +24,7 @@ MEM::MEM(int size, const char type[3])
     mem_type[1] = type[1]; //Write?
     mem_type[2] = '\0';
 
-    memory = (byte*)malloc(mem_size); //Creating memory
+    memory = (byte_t*)malloc(mem_size); //Creating memory
 
     //INPUTS AND OUTPUTS
 
@@ -47,7 +47,7 @@ MEM::MEM(int size, const char type[3])
 //Memory value update
 void MEM::update()
 {
-    if(!*ce) //Is chip selected?
+    if(!*io_ce) //Is chip selected?
     {
         pnt_t valid_adr = trim(*io_adrb, 0, log2(mem_size)); //Containing 20-bit address within actual memory address space
 

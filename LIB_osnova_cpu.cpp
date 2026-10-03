@@ -16,6 +16,7 @@ UPDATED ON:
 25. september, 2026.
 30. september, 2026.
 2. October, 2026.
+3. October, 2026.
 */
 
 #include "LIB_osnova_cpu.h" //Header file of this library
@@ -109,14 +110,14 @@ CPU::CPU()
     src[5] = &resr;
     src[6] = &add;
     src[7] = &dvr;
-    src[8] = &ff;
-    src[9] = &ff;
-    src[10] = &ff;
-    src[11] = &ff;
-    src[12] = &ff;
-    src[13] = &ff;
-    src[14] = &ff;
-    src[15] = &ff;
+    src[8] = &FF;
+    src[9] = &FF;
+    src[10] = &FF;
+    src[11] = &FF;
+    src[12] = &FF;
+    src[13] = &FF;
+    src[14] = &FF;
+    src[15] = &FF;
 
     //Inputs and outputs
     *io_db; //Main CPU Data Bus
@@ -147,7 +148,7 @@ byte_t CPU::calc_alu(byte_t a, byte_t b, int op, bool mode, int cin)
             case 7: return a && (!b); break;
             case 8: return (!a) || b; break;
             case 9: return !(a ^ b); break;
-            case 10: return B; break;
+            case 10: return b; break;
             case 11: return a && b; break;
             case 12: return 1; break;
             case 13: return a || (!b); break;
@@ -247,7 +248,7 @@ void CPU::update()
         break;
 
         case 4: //Stage 4
-            switch(Opc) //Decoding opcode part of instruction
+            switch(opc) //Decoding opcode part of instruction
             {
                 //JuMP (Branches on Cnd == 1), copies value from one pointer to another (if the Arg's MSB is 0, transfered pointer is incremented)
                 case 0: if(*cnd[arg]) *pf[pra] = *pf[pwa] +trim(arg, 3, 4); break;
@@ -268,13 +269,13 @@ void CPU::update()
 
                 case 8: dvr += dvr &HIGH_AREA +arg; break; //Direct Value Register Low (ARG part of IR -> low part of DVR), overwrites lower part of DVR
 
-                case 9: dvr += dvr &LOW_AREA arg; break; //Direct Value Register High (ARG part of IR -> high part of DVR), overwrites higher part of DVR
+                case 9: dvr += dvr &LOW_AREA +(arg >>4); break; //Direct Value Register High (ARG part of IR -> high part of DVR), overwrites higher part of DVR
 
                 case 10: ra = *io_db; break; //Register A (SRC -> RA)
 
                 case 11: rb = *io_db; break; //Register B (SRC -> RB)
 
-                case 12: PS = trim(*io_db, 4, 8); break; //Pointer Selector (SRC -> PS), note its size and the way it is connected
+                case 12: ps = trim(*io_db, 4, 8); break; //Pointer Selector (SRC -> PS), note its size and the way it is connected
 
                 case 13: intmn = 0; break; //Interrupt Set Internal (Inverted Set), switches on CPU's interrupt mode
 

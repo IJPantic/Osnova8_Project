@@ -26,7 +26,7 @@ class MEM
 
         int mem_size; //Memory size (In bytes)
 
-        char p_mem_type[3]; //Memory type ('rw' read/write, '-w' write only, 'r-' read only)
+        char mem_type[3]; //Memory type ('rw' read/write, '-w' write only, 'r-' read only)
 
         byte_t *memory; //Memory storage
 

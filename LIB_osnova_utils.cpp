@@ -8,18 +8,19 @@ UPDATED ON:
 25. september, 2026.
 1. October, 2026.
 2. October, 2026.
+3. October, 2026.
 */
 
 #include "LIB_osnova_utils.h" //Header file of this library
 
 //UNIVERSAL CONSTANTS
 
-const byte_t FF = 255; //"FF" as 0xFF, max value of a byte
+byte_t FF = 255; //"FF" as 0xFF, max value of a byte
 
-const byte_t LOW_AREA = 0X0F; //Low area mask of a byte
+const byte_t LOW_AREA = 0x0F; //Low area mask of a byte
 const byte_t HIGH_AREA = 0xF0; //High area mask of a byte
 
-const pnt_t ADR_AREA = 0X0FFFF; //Address area mask of ADD address space
+const pnt_t ADR_AREA = 0x0FFFF; //Address area mask of ADD address space
 const pnt_t SCT_AREA = 0xF0000; //Sector area mask of ADD address
 
 //FUNCTIONS
@@ -80,7 +81,7 @@ bstr_t padd(byte_t value)
         else if(1 < i) //Add padding except for 0x part
             padded_val.digits[i] = '0';
 
-        j++; //Step of j is in contra-directions of i
+        j++; //Step of "j" is in contra-directions of i
     }
     
     return padded_val;
@@ -99,18 +100,18 @@ pstr_t padd(pnt_t value)
     char str_val[6];
     sprintf(str_val, "%x", value);
 
-    int msd = 5+2; //Most significant digit index in a max value pointer
+    int lsd = 5+2; //Least significant digit index in a max value pointer
     int j = 0;
 
-    for(int i = msd; i > -1; i--)
+    for(int i = lsd; i > -1; i--)
     {
-        if(msd -dig_num < i) //Add value's digit
+        if(lsd -dig_num < i) //Add value's digit
             padded_val.digits[i] = str_val[j];
 
         else if(1 < i)//Add padding except for 0x part
             padded_val.digits[i] = '0';
 
-        j++; //Step of j is in contra-directions of i
+        j++; //Step of "j" is in contra-directions of i
     }
     
     return padded_val;

@@ -9,6 +9,7 @@ UPDATED ON:
 25. september, 2026.
 1. October, 2026.
 2. October, 2026.
+3. October, 2026.
 */
 
 #include <cstdint>
@@ -24,11 +25,16 @@ using byte_t = uint8_t; //CPU's word, 8-bit
 using pnt_t = int; //Pointer, 20-bit
 
 struct bstr_t{char digits[5];};
+struct b2str_t{char digits[6];};
 struct pstr_t{char digits[9];};
 
 //UNIVERSAL CONSTANTS
 
-extern const byte_t FF; //"FF" as 0xFF, max value of a byte
+extern byte_t FF; //"FF" as 0xFF, max value of a byte
+
+extern const byte_t LOW_AREA; //Low area mask of a byte
+extern const byte_t HIGH_AREA; //High area mask of a byte
+
 extern const pnt_t ADR_AREA; //Address area mask of ADD address space
 extern const pnt_t SCT_AREA; //Sector area mask of ADD address
 

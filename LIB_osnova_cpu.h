@@ -7,6 +7,7 @@ UPDATED ON:
 23. september, 2026.
 24. september, 2026.
 2. October, 2026.
+3. October, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -27,8 +28,8 @@ class CPU
         bool carry; //ALU's operation results in a CARRY (Branch on RA ? RB > 255)
         bool neg; //ALU's result is negative (Branch on RA ? RB < 0)
         bool odd; //ALU's result is ODD (Branch on (RA ? RB)%2 == 1)
-        const bool NC; //No Condition, always branches (1)
-        const bool DONT; //DON'T, never branches (0)
+        bool NC; //No Condition, always branches (1)
+        bool DONT; //DON'T, never branches (0)
 
         bool *cnd[16]; //Cnd arguments table
 
