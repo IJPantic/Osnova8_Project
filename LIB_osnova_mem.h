@@ -1,4 +1,4 @@
-//Osnova c++ memory library header file, GPL-V3
+//Osnova c++ memory simulation library header file, GPL-V3
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -9,6 +9,7 @@ UPDATED ON:
 30. september, 2026.
 1. October, 2026.
 2. October, 2026.
+5. October, 2026.
 */
 
 #include "LIB_osnova_utils.h"

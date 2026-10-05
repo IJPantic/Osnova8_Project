@@ -1,4 +1,4 @@
-//Osnova8 CPU c++ emulator library header file, GPL-V3
+//Osnova8 CPU c++ simulation library header file, GPL-V3
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -8,6 +8,8 @@ UPDATED ON:
 24. september, 2026.
 2. October, 2026.
 3. October, 2026.
+4. October, 2026.
+5. October, 2026.
 */
 
 #include "LIB_osnova_utils.h"
@@ -63,7 +65,7 @@ class CPU
 
         byte_t alu; //Arithmetic Logic Unit
 
-        byte_t add; //ADdress Device
+        byte_t *add; //ADdress Device (Just mirrors data bus)
 
         //Instruction Register and derived values
         byte_t ir;

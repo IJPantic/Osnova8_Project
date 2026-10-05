@@ -10,6 +10,8 @@ UPDATED ON:
 1. October, 2026.
 2. October, 2026.
 3. October, 2026.
+4. October, 2026.
+5. October, 2026.
 */
 
 #include <cstdint>
@@ -24,13 +26,10 @@ UPDATED ON:
 using byte_t = uint8_t; //CPU's word, 8-bit
 using pnt_t = int; //Pointer, 20-bit
 
-struct bstr_t{char digits[5];};
-struct b2str_t{char digits[6];};
-struct pstr_t{char digits[9];};
-
 //UNIVERSAL CONSTANTS
 
-extern byte_t FF; //"FF" as 0xFF, max value of a byte
+extern byte_t MAX_BV; //Max byte value
+extern pnt_t MAX_PV; //Max pointer value
 
 extern const byte_t LOW_AREA; //Low area mask of a byte
 extern const byte_t HIGH_AREA; //High area mask of a byte
@@ -46,11 +45,14 @@ byte_t trim(byte_t value, int start, int end);
 //Trims off all bits in a pointer except selected part
 pnt_t trim(pnt_t value, int start, int end);
 
-//Adds padding to a byte value
-bstr_t padd(byte_t value);
+//Argument decompile table (Turns argument number into argument's name)
+const char *dcmp_arg(byte_t opc, byte_t arg);
 
-//Adds padding to a pointer value
-pstr_t padd(pnt_t value);
+//Opcode decompile table (Turns opcode number into opcode's name)
+const char *dcmp_opc(byte_t opc);
+
+//ALU operations decompile table (Turns ALU op number into argument's name)
+const char *dcmp_op(int op, bool mode, int cin);
 
 #endif
 

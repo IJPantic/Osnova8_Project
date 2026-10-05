@@ -1,4 +1,4 @@
-//Osnova8 CPU c++ emulator library file, GPL-V3
+//Osnova8 CPU c++ simulation library file, GPL-V3
 //Created by Ivan Jonjic (IJPantic on github)
 
 /*
@@ -17,6 +17,8 @@ UPDATED ON:
 30. september, 2026.
 2. October, 2026.
 3. October, 2026.
+4. October, 2026.
+5. October, 2026.
 */
 
 #include "LIB_osnova_cpu.h" //Header file of this library
@@ -25,11 +27,11 @@ UPDATED ON:
 CPU::CPU()
 {
     //Flags (Conditions)
-    equ; //RA equals RB (Branch on RA == RB)
-    flgxn; //Pin Flag X Negated (Branch on 0)
+    equ = 1; //RA equals RB (Branch on RA == RB)
+    flgxn = 0; //Pin Flag X Negated (Branch on 0)
     intmn = 1; //CPU's INTterrupt Mode Negated (Branch on IF == 1)
-    carry; //ALU's operation results in a CARRY (Branch on RA ? RB > 255)
-    neg; //ALU's result is negative (Branch on RA ? RB < 0)
+    carry = 0; //ALU's operation results in a CARRY (Branch on RA ? RB > 255)
+    neg = 0; //ALU's result is negative (Branch on RA ? RB < 0)
     odd; //ALU's result is ODD (Branch on (RA ? RB)%2 == 1)
     NC = 1; //No Condition, always branches (1)
     DONT = 0; //DON'T, never branches (0)
@@ -75,28 +77,28 @@ CPU::CPU()
     ps = 0; //Pointer Selector (4-bit register, connected to bus with higher 4 bits; 4 thru 7)
 
     //Values derived from other states
-    pfl; //Pointer File Low
-    pfh; //Pointer File High
-    sf; //Sector File
+    pfl = 0; //Pointer File Low
+    pfh = 0; //Pointer File High
+    sf = 0; //Sector File
 
-    sfps; //Sector File (Lower part), Pointer Selector (Higher part)
+    sfps = 0; //Sector File (Lower part), Pointer Selector (Higher part)
 
-    pra; //Pointer Read Address (PS's lower part)
-    pwa; //Pointer Write Address (PS's higher part)
+    pra = 0; //Pointer Read Address (PS's lower part)
+    pwa = 0; //Pointer Write Address (PS's higher part)
 
-    alu; //Arithmetic Logic Unit
+    alu = 1; //Arithmetic Logic Unit
 
-    add; //ADdress Device
+    add = io_db; //ADdress Device (Just mirrors data bus)
 
     //Instruction Register and derived values
-    ir;
-    opc; //Opcode, higher 4-bit part of IR
-    arg; //Argument, lower 4-bit part of IR
+    ir = 0;
+    opc = 0; //Opcode, higher 4-bit part of IR
+    arg = 0; //Argument, lower 4-bit part of IR
 
     //ALU
-    op; //(S0, S1, S2, S3) pins (Selection (Of operation)) 
-    mode; //M pin (Mode, 1 is for logic operations, 0 is for arithmetic operations)
-    cin; //Cn pin (Carry in (Pin is inverted in ALU))
+    op = 0; //(S0, S1, S2, S3) pins (Selection (Of operation)) 
+    mode = 0; //M pin (Mode, 1 is for logic operations, 0 is for arithmetic operations)
+    cin = 0; //Cn pin (Carry in (Pin is inverted in ALU))
 
     stage = 0; //CPU Cycle stage, affected by clock ticks (Clock is ticked by calling "updateCPU" function)
     i = 0; //Don't touch ^^'
@@ -108,16 +110,16 @@ CPU::CPU()
     src[3] = &pfl;
     src[4] = &pfh;
     src[5] = &resr;
-    src[6] = &add;
+    src[6] = add;
     src[7] = &dvr;
-    src[8] = &FF;
-    src[9] = &FF;
-    src[10] = &FF;
-    src[11] = &FF;
-    src[12] = &FF;
-    src[13] = &FF;
-    src[14] = &FF;
-    src[15] = &FF;
+    src[8] = &MAX_BV;
+    src[9] = &MAX_BV;
+    src[10] = &MAX_BV;
+    src[11] = &MAX_BV;
+    src[12] = &MAX_BV;
+    src[13] = &MAX_BV;
+    src[14] = &MAX_BV;
+    src[15] = &MAX_BV;
 
     //Inputs and outputs
     *io_db; //Main CPU Data Bus
@@ -138,43 +140,43 @@ byte_t CPU::calc_alu(byte_t a, byte_t b, int op, bool mode, int cin)
     {
         switch(op)
         {
-            case 0: return !a; break;
-            case 1: return !(a || b); break;
-            case 2: return (!a) && b; break;
-            case 3: return 0; break;
-            case 4: return !(a && b); break;
-            case 5: return !b; break;
-            case 6: return a ^ b; break;
-            case 7: return a && (!b); break;
-            case 8: return (!a) || b; break;
-            case 9: return !(a ^ b); break;
-            case 10: return b; break;
-            case 11: return a && b; break;
-            case 12: return 1; break;
+            case 0:  return !a;        break;
+            case 1:  return !(a || b); break;
+            case 2:  return (!a) && b; break;
+            case 3:  return 0;         break;
+            case 4:  return !(a && b); break;
+            case 5:  return !b;        break;
+            case 6:  return a ^ b;     break;
+            case 7:  return a && (!b); break;
+            case 8:  return (!a) || b; break;
+            case 9:  return !(a ^ b);  break;
+            case 10: return b;         break;
+            case 11: return a && b;    break;
+            case 12: return 1;         break;
             case 13: return a || (!b); break;
-            case 14: return a || b; break;
-            case 15: return a; break;
+            case 14: return a || b;    break;
+            case 15: return a;         break;
         }
     }else //Arithmetic operations
     {
         switch(op)
         {
-            case 0: return a +cin; break;
-            case 1: return (a || b) +cin; break;
-            case 2: return (a || (!b)) +cin; break;
-            case 3: return 255 +cin; break;
-            case 4: return a+(a && (!b)) +cin; break;
-            case 5: return (a || b)+(a && (!b)) +cin; break;
-            case 6: return a-b-1 +cin; break;
-            case 7: return (a && (!b))-1 +cin; break;
-            case 8: return a+(a && b) +cin; break;
-            case 9: return a+b +cin; break;
+            case 0:  return a +cin;                    break;
+            case 1:  return (a || b) +cin;             break;
+            case 2:  return (a || (!b)) +cin;          break;
+            case 3:  return 255 +cin;                  break;
+            case 4:  return a+(a && (!b)) +cin;        break;
+            case 5:  return (a || b)+(a && (!b)) +cin; break;
+            case 6:  return a-b-1 +cin;                break;
+            case 7:  return (a && (!b))-1 +cin;        break;
+            case 8:  return a+(a && b) +cin;           break;
+            case 9:  return a+b +cin;                  break;
             case 10: return (a || (!b))+(a && b) +cin; break;
-            case 11: return (a && b)-1 +cin; break;
-            case 12: return a+a +cin; break;
-            case 13: return (a || b)+a +cin; break;
-            case 14: return (a || (!b))+a +cin; break;
-            case 15: return a-1 +cin; break;
+            case 11: return (a && b)-1 +cin;           break;
+            case 12: return a+a +cin;                  break;
+            case 13: return (a || b)+a +cin;           break;
+            case 14: return (a || (!b))+a +cin;        break;
+            case 15: return a-1 +cin;                  break;
         }
     }
 
@@ -184,8 +186,6 @@ byte_t CPU::calc_alu(byte_t a, byte_t b, int op, bool mode, int cin)
 //CPU update (execution cycle update)
 void CPU::update()
 {
-    stage++; //Updating cycle stage
-
     //Exection cycle
     switch(stage)
     {
@@ -213,10 +213,9 @@ void CPU::update()
             *io_addr = 1; //Ending fetch stage
 
             //Setting address of a current pointer selected by PS
-            pra = trim(ps, 0, 2);
-            pwa = trim(ps, 2, 4);
+            pra = trim(ps, 4, 6);
+            pwa = trim(ps, 6, 8);
             *io_adrb = *pf[pra];
-            add = *io_db;
 
             pfl = trim(*pf[pra], 0, 8); //Updating pointer file low source
             pfh = trim(*pf[pra], 8, 16); //Updating pointer file high source
@@ -228,21 +227,23 @@ void CPU::update()
             cin = trim(dvr, 5, 6);
             alu = calc_alu(ra, rb, op, mode, cin);
 
-            /* TODO sta sa ovin na kraju?
             //Decoding argument part of instruction
-            if(Arg == 6) //Index of ADD data source
-                Addr = 0; //Gives signal to address device to output it's value to CPU'a data bus
-            else
-                *Bus = *Src[Arg]; //Releases data sources from within CPU
-            */
+            if(arg == 6) //Index of ADD data source
+            {
+                *io_db = MAX_BV;
+                *io_addr = 0; //Gives signal to address device to output it's value to CPU'a data bus
 
-            *io_db = *src[arg]; //Releases data sources from within CPU
+            }else if(arg > 7) //CPU does not release any value to the data bus
+                *io_db = MAX_BV;
+
+            else
+                *io_db = *src[arg]; //Releases data sources from within CPU
 
             //Flags check
             equ = ra == rb; //Are registers A and B equal?
             flgxn = !*io_fx; //Is flag x CPU pin zero?
             intmn = !*io_if; //Is CPU not in interrupt mode?
-            carry = ra+rb > FF; //Is there a carry?
+            carry = ra+rb > MAX_BV; //Is there a carry?
             neg = alu >= 128; //Is MSB one?
             odd = alu%2 == 1; //Is LSB one?
         break;
@@ -251,7 +252,7 @@ void CPU::update()
             switch(opc) //Decoding opcode part of instruction
             {
                 //JuMP (Branches on Cnd == 1), copies value from one pointer to another (if the Arg's MSB is 0, transfered pointer is incremented)
-                case 0: if(*cnd[arg]) *pf[pra] = *pf[pwa] +trim(arg, 3, 4); break;
+                case 0: if(*cnd[arg]) *pf[pra] = (*pf[pwa]) +trim(arg, 3, 4); break;
 
                 case 1: rc = *io_db; break; //Register C (SRC -> RC)
 
@@ -263,13 +264,13 @@ void CPU::update()
 
                 case 5: resr = *io_db; break; //REServed Register (SRC -> RESR)
 
-                case 6: io_addw = 0; break; //Address device write (SRC -> selected address of ADD)
+                case 6: *io_addw = 0; break; //Address device write (SRC -> selected address of ADD)
 
                 case 7: dvr = 0; break; //Direct Value Register Reset (DVR = 0), sets value to zero
 
-                case 8: dvr += dvr &HIGH_AREA +arg; break; //Direct Value Register Low (ARG part of IR -> low part of DVR), overwrites lower part of DVR
+                case 8: dvr += (dvr &HIGH_AREA) +arg; break; //Direct Value Register Low (ARG part of IR -> low part of DVR), overwrites lower part of DVR
 
-                case 9: dvr += dvr &LOW_AREA +(arg >>4); break; //Direct Value Register High (ARG part of IR -> high part of DVR), overwrites higher part of DVR
+                case 9: dvr += (dvr &LOW_AREA) +(arg <<4); break; //Direct Value Register High (ARG part of IR -> high part of DVR), overwrites higher part of DVR
 
                 case 10: ra = *io_db; break; //Register A (SRC -> RA)
 
@@ -286,28 +287,31 @@ void CPU::update()
         break;
 
         case 5: //Stage 5
-            //No changes
+            *io_itx = 1;
+            *io_addw = 1;
         break;
 
         //3. POINTER INCREMENT
         case 6: //Stage 6
-            *io_db = FF; //Ending execution stage
-            *io_itx = 1;
-            *io_addw = 1;
+            *io_db = MAX_BV; //Ending execution stage
 
             i = 0; //Interrupt mode check
             if(intmn) i = 2;
 
-            *io_addr = 0; //Releasing PC (Or PCI, depending on interrupt flag state)
+            *io_addr = 0; //Releasing ADD at address PC (Or PCI, depending on interrupt flag state)
         break;
 
         case 7: //Stage 7
-            (*pf[i])++; //Incrementing PC (Or PCI, depending on interrupt flag state)
-            if(*pf[i] > ADR_AREA) *pf[i] = 0; //Spill check (Counting can only occur in address area of ADD, first 16 bits)
-            *io_adrb = *pf[i]; //Setting address of the next instruction
+            if(*pf[i] >= ADR_AREA)
+                *pf[i] = (*pf[i]) &SCT_AREA; //Spill check (Counting can only occur in address area of ADD, first 16 bits)
+            else
+                (*pf[i])++; //Incrementing PC (Or PCI, depending on interrupt flag state)
 
-            stage = 0; //Resets cycle
+            *io_adrb = *pf[i]; //Setting address of the next instruction
         break;
     }
+
+    stage++;
+    if(stage > 7) stage = 0; //Reset cycle stage
 }
 
