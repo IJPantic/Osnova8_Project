@@ -12,7 +12,7 @@ UPDATED ON:
 
 //INITIALIZE HARDWARE
 CPU main_cpu;
-MEM main_ram(65536, "rw");
+MEM main_ram(256, "rw");
 
 byte_t data_bus = MAX_BV; //Data bus (floats at the start)
 pnt_t adr_bus = MAX_PV; //Address bus (floats at the start)
@@ -50,7 +50,7 @@ void wire()
 
     //MAIN RAM CONNECTION
     mems[0] = main_ram.memory;
-    mems_size[0] = 65536;
+    mems_size[0] = 256;
 
     main_ram.io_db = &data_bus; //Data bus
     main_ram.io_adrb = &adr_bus; //Address bus

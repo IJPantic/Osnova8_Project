@@ -93,6 +93,7 @@ int main()
     char hex[] = "hex"; //takes dec value, prints hex value
     char list[] = "list"; //Lists opc,arg, alu
     char sim[] = "sim"; //Simulation start, stop, frequency
+    char insert[] = "insert"; //Inserts string of values into memory at a certain memory address
 
     char cmd[16]; //Command (Simulator command)
 
@@ -193,18 +194,19 @@ int main()
 
         }else if(!strcmp(cmd, help)) //Display help list
         {
-            printf("done - - - - - - -> Exits this program\n");
-            printf("step - - - - - - -> Ticks clock once\n");
-            printf("cycle TIMES- - - -> Finishes whole CPU execution cycle TIMES times\n");
-            printf("dump MEM - - - - -> Prints all contents of a MEM memory\n");
-            printf("snap CPU - - - - -> Prints all current states CPU cpu states\n");
-            printf("poke MEM ADR VAL -> Writes hexadecimal VAL value to a memory MEM at address ADR\n");
-            printf("peek MEM ADR - - -> Prints a memory value from memory MEM at address ADR\n");
-            printf("help - - - - - - -> Prints help list of all commnds (This is help command)\n");
-            printf("dec VAL- - - - - -> Prints value VAL in a decimal base\n");
-            printf("hex VAL- - - - - -> Prints value VAL in a hexadecimal base\n");
-            printf("list TABLE - - - -> Lists TABLE table, where TABLE can be opc (Opcodes), argsrc (Data sources), argcnd (Jump conditions), aluop (ALU operations)\n");
-            printf("sim ACT F- - - - -> ACT 'start' starts simulation, 'stop' stops simulation and 'freq' has additional argument 'F' which sets simulation's frequency\n");
+            printf("done - - - - - - - -> Exits this program\n");
+            printf("step - - - - - - - -> Ticks clock once\n");
+            printf("cycle TIMES- - - - -> Finishes whole CPU execution cycle TIMES times\n");
+            printf("dump MEM - - - - - -> Prints all contents of a MEM memory\n");
+            printf("snap CPU - - - - - -> Prints all current states CPU cpu states\n");
+            printf("poke MEM ADR VAL - -> Writes hexadecimal VAL value to a memory MEM at address ADR\n");
+            printf("peek MEM ADR - - - -> Prints a memory value from memory MEM at address ADR\n");
+            printf("help - - - - - - - -> Prints help list of all commnds (This is help command)\n");
+            printf("dec VAL- - - - - - -> Prints value VAL in a decimal base\n");
+            printf("hex VAL- - - - - - -> Prints value VAL in a hexadecimal base\n");
+            printf("list TABLE - - - - -> Lists TABLE table, where TABLE can be opc (Opcodes), argsrc (Data sources), argcnd (Jump conditions), aluop (ALU operations)\n");
+            printf("sim ACT F- - - - - -> ACT 'start' starts simulation, 'stop' stops simulation and 'freq' has additional argument 'F' which sets simulation's frequency\n");
+            printf("insert MEM ADR FILE-> Writes a string of values to a memory MEM at address ADR from '.bin' file FILE\n");
 
             printf("\n");
 
@@ -228,7 +230,7 @@ int main()
             {
                 for(byte_t i = 0; i < 16; i++)
                 {
-                    printf("0x%1xX: %s \n", (byte_t)i, dcmp_arg(0, i));
+                    printf("0x%1xX: %s \n", (byte_t)i, dcmp_opc(i));
                 }
 
                 printf("\n");
@@ -251,6 +253,7 @@ int main()
                 printf("Sel; Mode:0, Cin:0           Mode:0, Cin:1,          Mode:1, Cin:X\n");
 
                 for(byte_t i = 0; i < 16; i++)
+
                 {
                     printf("0x%1x: ", i);
 
@@ -284,6 +287,30 @@ int main()
 
                 freq = arg1;
             }
+
+        }else if(!strcmp(cmd, insert)) //Inserts string of values into memory
+        {
+            scanf("%d", &arg1); //Reads argument MEM
+            scanf("%d", &arg2); //Reads argument ADR
+            scanf("%15s", &str1); //Reads argument FILE
+            scanf("%d", &arg3); //Reads argument SIZE
+
+            //Retriving values from a bin file
+            FILE *p_file = fopen(str1, "rb");
+
+            if(p_file == NULL)
+                printf("Can't open this file");
+
+            byte_t *tmp_mem = (byte_t*)malloc(arg3); //Creating temporary memory
+
+            fread(tmp_mem, 1, arg3, p_file);
+
+            //Write to a memory address
+            for(int times = 0; times < arg3; times++)
+                mems[arg1][times +arg2] = tmp_mem[times];
+
+            free(tmp_mem);
+            fclose(p_file);
 
         }else printf("\nThis command does not exist\n \n");
     }
