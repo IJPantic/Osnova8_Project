@@ -3,6 +3,7 @@ This file contains Osnova project contents
 Created by Ivan Jonjic (IJPantic on github)
 
 Contents table:
+
         C++ files:
             Utilities library:
                 LIB_osnova_utils.cpp
