@@ -14,8 +14,8 @@ UPDATED ON:
 
 #include "LIB_osnova_utils.h"
 
-#ifndef LIB_osnova_mem
-#define LIB_osnova_mem
+#ifndef LIB_mem
+#define LIB_mem
 
 //Defining memory
 class MEM

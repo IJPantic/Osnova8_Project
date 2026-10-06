@@ -11,7 +11,7 @@ UPDATED ON:
 5. October, 2026.
 */
 
-#include "LIB_osnova_mem.h" //Header file of this library
+#include "LIB_mem.h" //Header file of this library
 
 //Memory constructor
 MEM::MEM(int size, const char type[3])

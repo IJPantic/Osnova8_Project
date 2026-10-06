@@ -7,7 +7,7 @@ UPDATED ON:
 */
 
 #include "LIB_osnova_cpu.h"
-#include "LIB_osnova_mem.h"
+#include "LIB_mem.h"
 
 #ifndef computer_def
 #define computer_def
