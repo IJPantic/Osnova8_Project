@@ -12,10 +12,10 @@ UPDATED ON:
 3. October, 2026.
 4. October, 2026.
 5. October, 2026.
+6. October, 2026.
 */
 
 #include <cstdint>
-#include <cstdio>
 #include <math.h>
 
 #ifndef LIB_osnova_utils

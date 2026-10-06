@@ -14,12 +14,13 @@ UPDATED ON:
 3. October, 2026.
 4. October, 2026.
 5. October, 2026.
+6. October, 2026.
 */
 
 #include <stdio.h>
 #include <cstring>
-#include <pthread.h>
-#include <time.h>
+#include <thread>
+#include <chrono>
 #include "LIB_osnova_utils.h"
 
 #include "computer_def.h"
@@ -41,36 +42,30 @@ CPU *cpus[cpus_num];
 
 //SIMULATION THREAD
 
-bool sim_running; //Thread control
-pthread_t thread; //Simulation thread
-int freq = 1; //Thread freqency
+std::thread sim_thread; //Simulation thread
 
-//Every clock tick TODO nadodaj komentare
-void *update_thread(void *freq)
+bool sim_running; //Thread control
+int freq = 1; //Thread freqency (In Hz, max 1000Hz)
+
+//Every clock tick
+void update_thread(int freq)
 {
-    int freq_num = *(int*)freq;
+    int period;
+
+    if(freq > 1000) //Checks if freq is exceeding it's max value
+        period = 1;
+    else
+        period = 1000 / freq;
 
     while(sim_running)
     {
-        for(int i = 0; i < 1000/freq_num; i++)
-            update();
+        update();
 
         stage++;
         if(stage > 7) stage = 0; //Bounds it's value between 0 and 7
 
-        /* save start time */
-        const time_t start = time(NULL);
-
-        time_t current;
-        do{
-            /* get current time */
-            time(&current);
-
-            /* break loop when the requested number of seconds have elapsed */
-        }while(difftime(current, start) < 1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(period)); //Simulation execution rate
     }
-
-    return NULL;
 }
 
 //SIMULATOR
@@ -274,14 +269,14 @@ int main()
             if(!strcmp(str1, "start")) //Starts simulation thread
             {
                 sim_running = 1;
-                pthread_create(&thread, NULL, update_thread, &freq);
+                sim_thread = std::thread(update_thread, freq);
+                sim_thread.detach();
 
             }else if(!strcmp(str1, "stop")) //Ends simulation thread
             {
                 sim_running = 0;
-                pthread_join(thread, NULL);
 
-            }else if(!strcmp(str1, "freq")) //TODO sredi da freq je zapravo frekvencija a ne samo neki broj
+            }else if(!strcmp(str1, "freq")) //Sets simulation execution frequency
             {
                 scanf("%d", &arg1); //Reads argument F
 
