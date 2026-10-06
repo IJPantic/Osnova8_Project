@@ -3,48 +3,49 @@ This file contains Osnova project TODO list
 Created by Ivan Jonjic (IJPantic on github)
 
 TODO:
+
     Osnova CPU:
-        CPU PCB
+        CPU.kicad
         LIB_osnova_cpu.cpp
         LIB_osnova_cpu.h
         LIB_osnova_cpu.circ
         snapshoter.bin
 
     MMU:
-        MMU PCB
+        MMU.kicad
         LIB_mmu.cpp
         LIB_mmu.h
         LIB_mmu.circ
         LIB_mmu.bin
 
     DMA:
-        DMA PCB
+        DMA.kicad
         LIB_dma.cpp
         LIB_dma.h
         LIB_dma.circ
 
     TIMER:
-        TIMER PCB
+        TIMER.kicad
         LIB_timer.cpp
         LIB_timer.h
         LIB_timer.circ
         LIB_timer.bin
 
     IC:
-        IC PCB
+        IC.kicad
         LIB_ic.cpp
         LIB_ic.h
         LIB_ic.circ
         int_handler.bin
 
     Sct Dcd:
-        SCT DCD PCB
+        SCTDCD.kicad
         LIB_sctdcd.cpp
         LIB_sctdcd.h
         LIB_sctdcd.circ
 
     Serial:
-        SERIAL PCB
+        SERIAL.kicad
         LIB_serial.cpp
         LIB_serial.h
         LIB_serial.circ
@@ -55,7 +56,7 @@ TODO:
         LIB_sd.bin
 
     Video Card:
-        VIDEOCARD PCB
+        VIDEOCARD.kicad
         LIB_videocard.cpp
         LIB_videocard.h
         LIB_videocard.circ
@@ -65,7 +66,7 @@ TODO:
         computer_def.cpp
         computer_def.h
         computer.circ
-        MOTHERBOARD PCB
+        MOTHERBOARD.kicad
 
     OS:
         kernel.bin
