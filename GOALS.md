@@ -5,8 +5,8 @@ Created by Ivan Jonjic (IJPantic on github)
 TODO:
     Osnova CPU:
         CPU PCB
-        LIB_osnova_cpu.cpp --DONE--
-        LIB_osnova_cpu.h --DONE--
+        LIB_osnova_cpu.cpp
+        LIB_osnova_cpu.h
         LIB_osnova_cpu.circ
         snapshoter.bin
 
