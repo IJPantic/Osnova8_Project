@@ -5,7 +5,7 @@ Created by Ivan Jonjic (IJPantic on github)
 TODO:
 
     Osnova CPU:
-        CPU.kicad
+        Osnova8_CPU.kicad
         LIB_osnova_cpu.cpp
         LIB_osnova_cpu.h
         LIB_osnova_cpu.circ
