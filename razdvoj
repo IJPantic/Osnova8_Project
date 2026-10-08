@@ -1,0 +1,62 @@
+
+macro
+
+%macrodef [MACRO_NAME] [PARAMETER], [PARAMETER] %macrodefend
+%macro [CODE]; %macroend
+
+include
+
+%include [FILE_NAME]
+
+declare
+
+%declare [DEFINITION_NAME] [TEXT] %declareend
+
+function
+
+[FUNCTION_NAME] [PARAMETER] [PARAMETER]: [CODE];
+
+instruciton
+
+[INST_NAME] [ARGUMENT], [ARGUMENT];
+
+label
+
+[PARENT] [PARENT] . [LABEL_NAME]
+
+variable
+
+[VARIABLE_NAME] [TYPE] [VALUE];
+
+stack
+
+%stack [STACK_SIZE]
+
+heap
+
+%heap [HEAP_SIZE]
+
+part
+
+[VALUE]'['[FIRST_PART], [LAST_PART]']'
+
+delimiteri
+
+%
+;
+.
+ 
+\t
+\n
+&
+|
+!
++
+-
+*
+/
+)
+(
+#
+[
+]
