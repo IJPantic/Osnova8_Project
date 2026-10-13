@@ -1,6 +1,15 @@
 6.listopada 2026.
 7.listopada 2026.
 8.listopada 2026.
+9.listopada 2026.
+12.listopada 2026.
+
+CORRECTION:
+VARIJABLE NISU VRIJEDNOST KAD IH STAVIS NEGDI U KODU NEGO POINTER NA NJIHOVU VRIJEDNOST
+ako nema nista prije . u labelu unda je taj relativan zadnjem parentu, aa ako imaa nesto to je unda njegov parent (nadjes prvo takvo ime u kodu i to je parent
+DONJA CRTA NIJE DELIMITER
+funckija je uvijek relativna zadnjem labelu i funckije nema ulogu labela, tj nemos skocit na njenu adresu nego jedino je mos pozvaat, 
+tj sto se tice labela ponasa se kao i sve ostale varijable ili sta vec npr
 
 macro body/macro call (ajmo rec kao staticna func, mozes proslidit arg) (%macro ime broj_arg ...u kodu... %1 prvi parametar ...na kraju... %endmacro)
 include file (koristi stvari iz drugog filea (mogu bit na njemu sinonimi(alu op, l za [], h za [], true, false, pc -> pci itd) ili macro body ili variable

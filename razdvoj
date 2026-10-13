@@ -1,51 +1,69 @@
 
-macro
+    macro
+%macrodef [MACRO_NAME] [PARAMETER], [PARAMETER]... %macrodefend
+%macro [INSTRUCTION] \n, [INSTRUCTION] \n ... %macroend
 
-%macrodef [MACRO_NAME] [PARAMETER], [PARAMETER] %macrodefend
-%macro [CODE]; %macroend
-
-include
-
+    include
 %include [FILE_NAME]
 
-declare
-
+    declare
 %declare [DEFINITION_NAME] [TEXT] %declareend
 
-function
+    function
+[FUNCTION_NAME] [PARAMETER], [PARAMETER]... : [INSTRUCTION] \n, [INSTRUCTION] \n ...
+[FUNCTION_NAME]: [INSTRUCTION] \n, [INSTRUCTION] \n ...
 
-[FUNCTION_NAME] [PARAMETER] [PARAMETER]: [CODE];
+    instruciton
+[INSTRUCTION_NAME] [ARGUMENT], [ARGUMENT]... \n
+[INSTRUCTION_NAME] \n
 
-instruciton
+    label
+[PARENT_LABEL_NAME] [PARENT_LABEL_NAME]... . [LABEL_NAME]
+. [LABEL_NAME]
 
-[INST_NAME] [ARGUMENT], [ARGUMENT];
+    variable
+[VARIABLE_NAME] [SIZE] [TYPE] [STRING] \n
+[VARIABLE_NAME] DB [STRING] \n
+[VARIABLE_NAME] DD [STRING] \n
+[VARIABLE_NAME] DT [STRING] \n
+[VARIABLE_NAME] DQ [STRING] \n
+[VARIABLE_NAME] DW [STRING] \n
+[VARIABLE_NAME] [SIZE] DW [STRING] \n
 
-label
-
-[PARENT] [PARENT] . [LABEL_NAME]
-
-variable
-
-[VARIABLE_NAME] [TYPE] [VALUE];
-
-stack
-
+    stack
 %stack [STACK_SIZE]
 
-heap
-
+    heap
 %heap [HEAP_SIZE]
 
-part
+    part
+...[VALUE]'['[FIRST_PART], [LAST_PART]']'...
+...[VALUE]'['[PART]']'...
 
-[VALUE]'['[FIRST_PART], [LAST_PART]']'
+    comment
+... ; [COMMENT_TEXT] \n
 
-delimiteri
+    word
+... "[STRING]" ...
 
+    character
+... '[CHARACTER]' ...
+
+    number
+... [BASE] [NUMBER_VALUE] ...
+... [NUMBER_VALUE] ...
+... 0x [NUMBER_VALUE] ...
+... 0b [NUMBER_VALUE] ...
+
+    delimiters (20)
+"
+'
 %
 ;
+:
 .
- 
+.
+␠
 \t
 \n
 &
@@ -60,3 +78,4 @@ delimiteri
 #
 [
 ]
+
