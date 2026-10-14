@@ -6,6 +6,7 @@
 11. October, 2026.
 12. October, 2026.
 13. October, 2026.
+14. October, 2026.
 */
 
 /*
@@ -20,8 +21,8 @@ nemnoj napraviti bin buffer nego za to odmah pisi u file sa append
 //File extension check, checks if 'fpath' has extension 'ext' ('Ext' max lenght is 5 characters including '\0')
 int ext_check(char *fpath, const char ext[3]);
 
-//Delimiter characters
-const char DELIMITER[23];
+//Delimiter characters check
+int delimiter_check(const char check_i);
 
 int main()
 {
@@ -84,10 +85,18 @@ int main()
     //first run
     int token_num = 0;
 
-    for(int i = 0; i < asm_fsize; i++)
-        if(asm_fbuf[i]) token_num++;
+    for(int i = 0; i < asm_fsize; i++) //Takes into account worse case scenario (There was another token before the delimiter)
+    {
+        if(delimiter_check(asm_fbuf[i]))
+        {
+            if(asm_fbuf[i] == ' ' || asm_fbuf[i] == '\t')
+                token_num +=1;
+            else
+                token_num +=2;
+        }
+    }
 
-    printf("toke_num: %d\n", token_num);
+    printf("token_num: %d\n", token_num);
 
     //second run
 
@@ -100,21 +109,40 @@ int main()
     {
         current_char = asm_fbuf[last_p];
 
-        for(int j = 0; j < sizeof(DELIMITER); j++)
+        if(delimiter_check(current_char))
         {
-            if(current_char == DELIMITER[j])
+            if(current_char == '\n') //Include delimiter also
             {
                 for(int i = first_p; i < last_p; i++)
-                {
                     printf("%c", asm_fbuf[i]);
-                    if(i == last_p-1 && DELIMITER[j] != '\n')
-                        printf(".\n");
-                }
 
-                printf("%c [DELIMITER]\n", DELIMITER[j]);
-
-                first_p = last_p +1;
+                if(first_p != last_p)
+                    printf("\n");
+                printf("NEXT\n");
             }
+            else
+            {
+                if(current_char == ' ' || current_char == '\t')
+                {
+                    for(int i = first_p; i < last_p; i++)
+                        printf("%c", asm_fbuf[i]);
+
+                    if(first_p != last_p)
+                        printf("\n");
+                }
+                else
+                {
+
+                    for(int i = first_p; i < last_p; i++)
+                        printf("%c", asm_fbuf[i]);
+
+                    if(first_p != last_p)
+                        printf("\n");
+                    printf("%c\n", current_char);
+                }
+            }
+
+            first_p = last_p +1;
         }
     }
 
@@ -138,36 +166,39 @@ int ext_check(char *fpath, const char ext[5])
     return strcmp(curr_ext, ext); //Assembly extension check
 }
 
-//GLOBAL CONSTANTS
+//Delimiter character check
+int delimiter_check(const char check_i)
+{
+    switch(check_i)
+    {
+        case '%':  return 1; break; //Compiler directive
+        case '#':  return 1; break; //Binary word join operator
+        case '\"': return 1; break; //String bracket
+        case '\'': return 1; break; //Character bracket
+        case ';':  return 1; break; //Comment
+        case ':':  return 1; break; //Function definition
+        case ',':  return 1; break; //Argument/parameter seperator
+        case '.':  return 1; break; //Line label
+        case ' ':  return 1; break; //word separator (space)
+        case '\t': return 1; break; //word separator (tab)
+        case '\n': return 1; break; //Instruction end
+        case '+':  return 1; break; //Addition operator
+        case '-':  return 1; break; //Subtraction operator
+        case '*':  return 1; break; //multiplication operator
+        case '/':  return 1; break; //Integer division operator
+        case '&':  return 1; break; //Logic and operator
+        case '|':  return 1; break; //Logic or operator
+        case '!':  return 1; break; //Logic invertor operator
+        case '(':  return 1; break; //Open bracket for operation priority
+        case ')':  return 1; break; //Closed bracket for operation priority
+        case '[':  return 1; break; //Open bracket for part selection
+        case ']':  return 1; break; //Closed bracket for part selection
+        case '\0': return 1; break; //End of assembly code
 
-//Delimiter characters
-const char DELIMITER[23] = {
-    '%', //Compiler directive
-    '#', //Binary word join operator
-    '\"', //String bracket
-    '\'', //Character bracket
-    ';', //Comment
-    ':', //Function definition
-    ',', //Argument/parameter seperator
-    '.', //Line label
-    ' ', //word separator (space)
-    '\t', //word separator (tab)
-    '\n', //Instruction end
-    '+', //Addition operator
-    '-', //Subtraction operator
-    '*', //multiplication operator
-    '/', //Integer division operator
-    '&', //Logic and operator
-    '|', //Logic or operator
-    '!', //Logic invertor operator
-    '(', //Open bracket for operation priority
-    ')', //Closed bracket for operation priority
-    '[', //Open bracket for part selection
-    ']', //Closed bracket for part selection
-    '\0' //End of assembly code
-};
+        default: return 0;
+    }
+}
 
-//lexer
 //parser
 //optimiser
 //generator
