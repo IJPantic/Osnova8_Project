@@ -7,11 +7,13 @@
 12. October, 2026.
 13. October, 2026.
 14. October, 2026.
+17. October, 2026.
 */
 
 /*
 TODO
 nemnoj napraviti bin buffer nego za to odmah pisi u file sa append
+token build nek bude funkcija
 */
 
 #include <stdio.h>
@@ -26,7 +28,7 @@ int delimiter_check(const char check_i);
 
 int main()
 {
-    //FILE MANIPULATION
+    //USER INPUT
 
     //Reading user input
     char asm_fpath[256]; //Assembly file path
@@ -36,30 +38,33 @@ int main()
     printf("Osnova assembly C compiler version beta\n");
     printf("Created by Ivan Jonjic (IJPantic on github), GPL-V3\n \n");
 
+    //Getting assembly file path
     printf("Assembly ('.asm') input file (path): ");
-    scanf("%255s", asm_fpath); //Getting assembly file path
+    scanf("%255s", asm_fpath);
 
+    if(ext_check(asm_fpath, ".asm")) //Wrong input file extension check
+    {
+        printf("\nERROR: Input file does not have '.asm' extension!\n");
+        return 1;
+    }
+
+    //Getting binary file path
     printf("Binary ('.bin') output file (path): ");
-    scanf("%255s", bin_fpath); //Getting binary file path
+    scanf("%255s", bin_fpath);
 
-    //Checking filepaths
-    if(ext_check(asm_fpath, ".asm")) //Input filepath is not assembly check
+    if(ext_check(bin_fpath, ".bin")) //Wrong output extension check
     {
-        printf("ERROR: Input file does not have '.asm' extension!\n");
+        printf("\nERROR: Output file does not have '.bin' extension!\n");
         return 1;
     }
 
-    if(ext_check(bin_fpath, ".bin")) //Output filepath is not binary check
-    {
-        printf("ERROR: Input file does not have '.bin' extension!\n");
-        return 1;
-    }
+    //FILE MANIPULATION
 
     //Opening files
     FILE *p_fasm = fopen(asm_fpath, "r"); //Assembly input file
     if(p_fasm == NULL) //Failed to read input file check
     {
-        printf("ERROR: This assembly file does not exist!\n");
+        printf("\nERROR: This assembly file does not exist!\n");
         return 1;
     }
 
@@ -80,70 +85,138 @@ int main()
     fread(asm_fbuf, 1, asm_fsize, p_fasm); //Writing from a file to the buffer
     fclose(p_fasm);
 
-    //LEXER TODO 2 skena, u prvom pobroji delimitere i alociraj za p array, 2. sken sa poinettrima odvoji rici i alociraj u struct
+    //LEXER
 
-    //first run
     int token_num = 0;
 
-    for(int i = 0; i < asm_fsize; i++) //Takes into account worse case scenario (There was another token before the delimiter)
-    {
-        if(delimiter_check(asm_fbuf[i]))
-        {
-            if(asm_fbuf[i] == ' ' || asm_fbuf[i] == '\t')
-                token_num +=1;
-            else
-                token_num +=2;
-        }
-    }
-
-    printf("token_num: %d\n", token_num);
-
-    //second run
-
-    int first_p = 0;
-    int last_p = 0;
+    int first_p;
+    int last_p;
 
     char current_char;
+    char token_build[32];
+
+    int i;
+
+    //first run
+
+    first_p = 0;
+    last_p = 0;
 
     for(last_p; last_p < asm_fsize; last_p++)
     {
         current_char = asm_fbuf[last_p];
 
-        if(delimiter_check(current_char))
+        i = first_p;
+
+        if(last_p-first_p > 32) //Max token size check
+        {
+            printf("\nERROR: Words excede max token limit (31)!\n");
+            return 1;
+        }
+
+        if(delimiter_check(current_char)) //Delimiter is a sign that word is done
         {
             if(current_char == '\n') //Include delimiter also
             {
-                for(int i = first_p; i < last_p; i++)
-                    printf("%c", asm_fbuf[i]);
+                if(first_p != last_p) token_num +=2;
 
-                if(first_p != last_p)
-                    printf("\n");
-                printf("NEXT\n");
-            }
-            else
+            }else
             {
                 if(current_char == ' ' || current_char == '\t')
                 {
-                    for(int i = first_p; i < last_p; i++)
-                        printf("%c", asm_fbuf[i]);
+                    if(first_p != last_p) token_num +=1;
 
-                    if(first_p != last_p)
-                        printf("\n");
-                }
-                else
+                }else
                 {
-
-                    for(int i = first_p; i < last_p; i++)
-                        printf("%c", asm_fbuf[i]);
-
-                    if(first_p != last_p)
-                        printf("\n");
-                    printf("%c\n", current_char);
+                    if(first_p == last_p)
+                        token_num +=1;
+                    else
+                        token_num +=2;
                 }
             }
 
             first_p = last_p +1;
         }
+    }
+
+    char (*token_p_array)[32] = malloc(token_num*32); //Token pointer array (points to all tokens in the aassembly code, max token size is 31 characters)
+
+    printf("\ntoken_num: %d\n\n", token_num);
+
+    //second run
+
+    first_p = 0;
+    last_p = 0;
+
+    int token_i = 0;
+
+    void add_built_token()
+    {
+        for(i; i < last_p; i++) token_build[i -first_p] = asm_fbuf[i]; //slozi ric
+        token_build[i -first_p] = '\0';
+
+        strcpy(token_p_array[token_i], token_build); //prenesi ric
+        token_i++;
+    }
+
+    void add_built_delimiter()
+    {
+        token_build[0] = current_char; //slozi ric (delimiter)
+        token_build[1] = '\0';
+
+        strcpy(token_p_array[token_i], token_build); //prenesi ric
+        token_i++;
+    }
+
+    void add_newline_char()
+    {
+        strcpy(token_build, "NEWLINECHAR"); //slozi ric (new line character)
+
+        strcpy(token_p_array[token_i], token_build); //prenesi ric
+        token_i++;
+    }
+
+    for(last_p; last_p < asm_fsize; last_p++)
+    {
+        current_char = asm_fbuf[last_p];
+
+        i = first_p;
+
+        if(delimiter_check(current_char)) //Delimiter is a sign that word is done
+        {
+            if(current_char == '\n') //Include delimiter also
+            {
+                if(first_p != last_p)
+                {
+                    add_built_token();
+                    add_newline_char();
+                }
+
+            }else
+            {
+                if(current_char == ' ' || current_char == '\t')
+                {
+                    if(first_p != last_p)
+                        add_built_token();
+
+                }else
+                {
+                    add_built_delimiter();
+
+                    if(first_p != last_p)
+                        add_built_token();
+                }
+            }
+
+            first_p = last_p +1;
+        }
+    }
+
+    // --> TEST <--
+
+    for(int j = 0; j < token_num; j++)
+    {
+        printf("%d: %s\n", j, token_p_array[j]);
     }
 
     return 0;
@@ -193,13 +266,11 @@ int delimiter_check(const char check_i)
         case ')':  return 1; break; //Closed bracket for operation priority
         case '[':  return 1; break; //Open bracket for part selection
         case ']':  return 1; break; //Closed bracket for part selection
-        case '\0': return 1; break; //End of assembly code
 
         default: return 0;
     }
 }
 
 //parser
-//optimiser
 //generator
 
